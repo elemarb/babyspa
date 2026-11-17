@@ -1,0 +1,125 @@
+/* ==========================================================
+   Baby Spa Paraguay - Custom CSS
+   Paleta Pastel & Microanimaciones Suaves
+   ========================================================== */
+
+:root {
+  --bg-base: #FFF8F0;
+  --bg-rosa: #FADCE2;
+  --bg-celeste: #D9EDF6;
+  --color-cta: #F09CB0;
+  --color-cta-hover: #E37F98;
+  --text-main: #5B4B47;
+  --text-muted: #8A7A75;
+  --border-soft: #EFE1D8;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-main);
+  font-family: 'Quicksand', sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: 'Fredoka', cursive, sans-serif;
+  text-wrap: balance;
+}
+
+.font-handwriting {
+  font-family: 'Caveat', cursive;
+}
+
+/* Transición suave estándar según Skill (700ms) */
+.smooth-transition {
+  transition: all 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Burbujas flotantes en Hero */
+@keyframes floatBubble {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(-24px) rotate(8deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.35;
+  }
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(217, 237, 246, 0.45));
+  box-shadow: 0 4px 15px rgba(217, 237, 246, 0.35), inset 0 0 10px rgba(255,255,255,0.8);
+  pointer-events: none;
+  animation: floatBubble ease-in-out infinite;
+}
+
+/* Skeleton loader para horarios */
+@keyframes skeletonPulse {
+  0% {
+    background-color: #f3e8df;
+  }
+  50% {
+    background-color: #ebdcd2;
+  }
+  100% {
+    background-color: #f3e8df;
+  }
+}
+
+.skeleton-box {
+  animation: skeletonPulse 1.6s ease-in-out infinite;
+}
+
+/* Estilos de botones de horarios */
+.slot-btn {
+  transition: all 0.25s ease-out;
+}
+.slot-available {
+  background-color: #D9EDF6;
+  color: #3b5059;
+  border: 1.5px solid #c2e1f0;
+}
+.slot-available:hover {
+  background-color: #c5e4f3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(217, 237, 246, 0.7);
+}
+.slot-selected {
+  background-color: #F09CB0 !important;
+  color: #ffffff !important;
+  border-color: #e37f98 !important;
+  transform: scale(1.03);
+  box-shadow: 0 6px 16px rgba(240, 156, 176, 0.45);
+}
+.slot-disabled {
+  background-color: #f4ede7;
+  color: #a89d98;
+  border: 1.5px dashed #ded4cd;
+  text-decoration: line-through;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* Estilo sutil de scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: #FFF8F0;
+}
+::-webkit-scrollbar-thumb {
+  background: #ecd5ce;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e3beb4;
+}
