@@ -44,7 +44,17 @@ class Database {
      *   tutor_nombre, telefono, notas, estado
      * Retorna el ID autogenerado (bigserial) de la fila insertada.
      */
-    public static function crearReserva($data) {
+    public static function probarConexion() {
+        try {
+            // Simple query to verify connection
+            global $pdo;
+            $pdo->query('SELECT 1');
+            return ['success'=>true,'mensaje'=>'Conexión a la base de datos exitosa.','sugerencia'=>''];
+        } catch (Exception $e) {
+            return ['success'=>false,'mensaje'=>'Error al conectar a la base de datos.','sugerencia'=>$e->getMessage()];
+        }
+    }
+
         global $pdo;
         $sql = "INSERT INTO reservas (codigo, servicio, fecha, hora, bebe_nombre, bebe_edad, tutor_nombre, telefono, notas, estado)
                 VALUES (:codigo, :servicio, :fecha, :hora, :bebe_nombre, :bebe_edad, :tutor_nombre, :telefono, :notas, :estado)";
