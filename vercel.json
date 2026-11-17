@@ -1,23 +1,13 @@
 {
-  "functions": {
-    "api/**/*.php": {
-      "runtime": "@vercel/php"
-    }
-  },
-  "builds": [
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
     {
-      "src": "api/**/*.php",
-      "use": "@vercel/php"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "source": "/api/horarios.php",
+      "destination": "/api/horarios"
     },
     {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/api/reservar.php",
+      "destination": "/api/reservar"
     }
   ]
 }
