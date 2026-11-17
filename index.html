@@ -988,7 +988,7 @@
           <span>📲</span>
         </a>
 
-        <a id="google-cal-btn" href="#" target="_blank" class="w-full bg-blue-soft hover:bg-[#c5e4f3] text-[#2f4955] py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+        <a id="google-cal-btn" href="#" target="_blank" class="hidden w-full bg-blue-soft hover:bg-[#c5e4f3] text-[#2f4955] py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold items-center justify-center gap-2 transition-colors">
           <span>Guardar en Google Calendar</span>
           <span>📅</span>
         </a>

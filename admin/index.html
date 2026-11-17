@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Panel de reservas | Baby Spa Paraguay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Quicksand', sans-serif; background: #FFF8F0; color: #5B4B47; }
+    h1, h2, h3 { font-family: 'Fredoka', sans-serif; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="bg-white border-b border-[#EFE1D8] px-4 py-4 sm:px-8">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
+      <a href="/" class="font-heading text-lg font-bold text-[#5B4B47]">Baby Spa Paraguay</a>
+      <button id="logout-btn" type="button" class="hidden rounded-full border border-[#EFE1D8] px-4 py-2 text-sm font-bold text-[#5B4B47] hover:bg-[#FFF8F0]">
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-8 sm:px-8">
+    <section id="login-panel" class="mx-auto mt-10 max-w-md rounded-3xl border border-[#EFE1D8] bg-white p-7 shadow-sm sm:p-9">
+      <p class="mb-2 text-xs font-bold uppercase tracking-widest text-[#F09CB0]">Acceso privado</p>
+      <h1 class="text-3xl font-bold text-[#5B4B47]">Panel de reservas</h1>
+      <p class="mt-2 text-sm text-[#8A7A75]">Ingresá con la cuenta autorizada para administrar los turnos.</p>
+
+      <form id="login-form" class="mt-7 space-y-4">
+        <label class="block text-sm font-semibold text-[#5B4B47]">
+          Correo electrónico
+          <input id="email" type="email" autocomplete="username" required class="mt-1.5 w-full rounded-2xl border border-[#EFE1D8] px-4 py-3 text-sm outline-none focus:border-[#F09CB0]">
+        </label>
+        <label class="block text-sm font-semibold text-[#5B4B47]">
+          Contraseña
+          <input id="password" type="password" autocomplete="current-password" required class="mt-1.5 w-full rounded-2xl border border-[#EFE1D8] px-4 py-3 text-sm outline-none focus:border-[#F09CB0]">
+        </label>
+        <button id="login-btn" type="submit" class="w-full rounded-full bg-[#F09CB0] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#E37F98] disabled:cursor-wait disabled:opacity-60">
+          Iniciar sesión
+        </button>
+      </form>
+      <p id="login-message" role="status" class="mt-4 hidden rounded-2xl bg-rose-50 p-3 text-sm text-rose-700"></p>
+    </section>
+
+    <section id="dashboard" class="hidden">
+      <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-[#F09CB0]">Administración</p>
+          <h1 class="mt-1 text-3xl font-bold text-[#5B4B47]">Turnos del Spa</h1>
+          <p class="mt-1 text-sm text-[#8A7A75]">Reservas de las familias que agendaron en línea.</p>
+        </div>
+        <div class="flex flex-wrap items-end gap-3 rounded-2xl border border-[#EFE1D8] bg-white p-3">
+          <label class="text-xs font-bold text-[#8A7A75]">
+            Fecha
+            <input id="filter-date" type="date" class="mt-1 block rounded-xl border border-[#EFE1D8] bg-[#FFF8F0] px-3 py-2 text-sm text-[#5B4B47]">
+          </label>
+          <label class="text-xs font-bold text-[#8A7A75]">
+            Estado
+            <select id="filter-state" class="mt-1 block rounded-xl border border-[#EFE1D8] bg-[#FFF8F0] px-3 py-2 text-sm text-[#5B4B47]">
+              <option value="">Todos</option>
+              <option value="confirmada">Confirmadas</option>
+              <option value="completada">Completadas</option>
+              <option value="cancelada">Canceladas</option>
+            </select>
+          </label>
+          <button id="today-btn" type="button" class="rounded-full border border-[#EFE1D8] px-4 py-2 text-sm font-bold text-[#5B4B47] hover:bg-[#FFF8F0]">Hoy</button>
+          <button id="refresh-btn" type="button" class="rounded-full bg-[#D9EDF6] px-4 py-2 text-sm font-bold text-[#3b5059] hover:bg-[#c5e4f3]">Actualizar</button>
+        </div>
+      </div>
+
+      <p id="dashboard-message" role="status" class="mb-4 hidden rounded-2xl bg-rose-50 p-3 text-sm text-rose-700"></p>
+
+      <div class="overflow-hidden rounded-3xl border border-[#EFE1D8] bg-white shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[850px] text-left text-sm">
+            <thead class="border-b border-[#EFE1D8] bg-[#FFF8F0] text-xs uppercase tracking-wider text-[#8A7A75]">
+              <tr>
+                <th class="px-5 py-4">Horario / código</th>
+                <th class="px-5 py-4">Bebé</th>
+                <th class="px-5 py-4">Contacto</th>
+                <th class="px-5 py-4">Servicio</th>
+                <th class="px-5 py-4">Estado</th>
+                <th class="px-5 py-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="reservations-body" class="divide-y divide-[#EFE1D8]"></tbody>
+          </table>
+        </div>
+        <div id="empty-state" class="hidden px-5 py-12 text-center">
+          <p class="text-3xl">👶</p>
+          <h2 class="mt-3 text-xl font-bold text-[#5B4B47]">No hay reservas para estos filtros</h2>
+          <p class="mt-1 text-sm text-[#8A7A75]">Probá con otra fecha o estado.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="/admin/admin.js" defer></script>
+</body>
+</html>

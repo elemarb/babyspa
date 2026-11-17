@@ -1,0 +1,355 @@
+const loginPanel = document.getElementById('login-panel');
+const dashboard = document.getElementById('dashboard');
+const loginForm = document.getElementById('login-form');
+const loginButton = document.getElementById('login-btn');
+const loginMessage = document.getElementById('login-message');
+const dashboardMessage = document.getElementById('dashboard-message');
+const reservationsBody = document.getElementById('reservations-body');
+const emptyState = document.getElementById('empty-state');
+const filterDate = document.getElementById('filter-date');
+const filterState = document.getElementById('filter-state');
+const logoutButton = document.getElementById('logout-btn');
+
+let supabaseConfig;
+let session = readSession();
+
+function readSession() {
+  try {
+    return JSON.parse(sessionStorage.getItem('babyspa-admin-session') || 'null');
+  } catch (error) {
+    sessionStorage.removeItem('babyspa-admin-session');
+    return null;
+  }
+}
+
+function saveSession(value) {
+  session = value;
+  sessionStorage.setItem('babyspa-admin-session', JSON.stringify(value));
+}
+
+function clearSession() {
+  session = null;
+  sessionStorage.removeItem('babyspa-admin-session');
+}
+
+function localDateISO() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Asuncion',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function showMessage(element, message) {
+  element.textContent = message;
+  element.classList.remove('hidden');
+}
+
+function hideMessage(element) {
+  element.textContent = '';
+  element.classList.add('hidden');
+}
+
+function showLogin(message = '') {
+  loginPanel.classList.remove('hidden');
+  dashboard.classList.add('hidden');
+  logoutButton.classList.add('hidden');
+  if (message) showMessage(loginMessage, message);
+}
+
+function showDashboard() {
+  loginPanel.classList.add('hidden');
+  dashboard.classList.remove('hidden');
+  logoutButton.classList.remove('hidden');
+  hideMessage(loginMessage);
+}
+
+async function loadConfig() {
+  const response = await fetch('/api/admin/config');
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'No se pudo cargar la configuración del panel.');
+  supabaseConfig = data;
+}
+
+async function refreshSession() {
+  if (!session || !session.refresh_token) return false;
+
+  const response = await fetch(`${supabaseConfig.supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
+    method: 'POST',
+    headers: {
+      apikey: supabaseConfig.publishableKey,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ refresh_token: session.refresh_token })
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    clearSession();
+    return false;
+  }
+
+  saveSession(data);
+  return true;
+}
+
+async function authorizedFetch(url, options = {}) {
+  const headers = new Headers(options.headers || {});
+  headers.set('Authorization', `Bearer ${session.access_token}`);
+  let response = await fetch(url, { ...options, headers });
+
+  if (response.status === 401 && await refreshSession()) {
+    headers.set('Authorization', `Bearer ${session.access_token}`);
+    response = await fetch(url, { ...options, headers });
+  }
+
+  return response;
+}
+
+async function readResponse(response) {
+  const data = await response.json();
+  if (!response.ok) {
+    const error = new Error(data.error || 'No se pudo completar la operación.');
+    error.status = response.status;
+    throw error;
+  }
+  return data;
+}
+
+async function signIn(email, password) {
+  const response = await fetch(`${supabaseConfig.supabaseUrl}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: {
+      apikey: supabaseConfig.publishableKey,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.msg || data.message || 'Correo o contraseña incorrectos.');
+  saveSession(data);
+}
+
+function createCell(text, className = 'px-5 py-4 align-top') {
+  const cell = document.createElement('td');
+  cell.className = className;
+  cell.textContent = text == null ? '' : String(text);
+  return cell;
+}
+
+function createActionButton(label, className, callback) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = className;
+  button.textContent = label;
+  button.addEventListener('click', callback);
+  return button;
+}
+
+function renderReservations(reservations) {
+  reservationsBody.replaceChildren();
+  emptyState.classList.toggle('hidden', reservations.length !== 0);
+
+  reservations.forEach((reservation) => {
+    const row = document.createElement('tr');
+    row.className = 'hover:bg-[#FFF8F0]/50';
+
+    const timeCell = createCell('');
+    const time = document.createElement('strong');
+    time.className = 'block font-bold text-[#5B4B47]';
+    time.textContent = `${reservation.hora || ''} hs`;
+    const code = document.createElement('span');
+    code.className = 'mt-1 block font-mono text-xs text-[#8A7A75]';
+    code.textContent = reservation.codigo || 'Sin código';
+    timeCell.append(time, code);
+    row.appendChild(timeCell);
+
+    const babyCell = createCell('');
+    const babyName = document.createElement('strong');
+    babyName.className = 'block font-bold text-[#5B4B47]';
+    babyName.textContent = reservation.bebe_nombre || '';
+    const age = document.createElement('span');
+    age.className = 'text-xs text-[#8A7A75]';
+    age.textContent = `${reservation.bebe_edad ?? ''} meses`;
+    babyCell.append(babyName, age);
+    row.appendChild(babyCell);
+
+    const contactCell = createCell('');
+    const contactName = document.createElement('span');
+    contactName.className = 'block font-semibold text-[#5B4B47]';
+    contactName.textContent = reservation.tutor_nombre || '';
+    const phone = document.createElement('a');
+    const digits = String(reservation.telefono || '').replace(/\D/g, '');
+    const whatsappNumber = digits.startsWith('595')
+      ? digits
+      : digits.startsWith('0')
+        ? `595${digits.slice(1)}`
+        : `595${digits}`;
+    phone.href = `https://wa.me/${whatsappNumber}`;
+    phone.target = '_blank';
+    phone.rel = 'noopener noreferrer';
+    phone.className = 'mt-1 inline-block text-xs font-semibold text-emerald-700';
+    phone.textContent = reservation.telefono || '';
+    contactCell.append(contactName, phone);
+    row.appendChild(contactCell);
+
+    const serviceCell = createCell(reservation.servicio_nombre || reservation.servicio || '');
+    if (reservation.notas) {
+      const notes = document.createElement('p');
+      notes.className = 'mt-1 max-w-xs truncate text-xs italic text-[#8A7A75]';
+      notes.title = reservation.notas;
+      notes.textContent = reservation.notas;
+      serviceCell.appendChild(notes);
+    }
+    row.appendChild(serviceCell);
+
+    const statusCell = createCell('');
+    const badge = document.createElement('span');
+    const statusStyles = {
+      confirmada: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      completada: 'bg-blue-50 text-blue-700 border-blue-200',
+      cancelada: 'bg-rose-50 text-rose-700 border-rose-200'
+    };
+    badge.className = `inline-block rounded-full border px-2.5 py-1 text-xs font-bold ${statusStyles[reservation.estado] || 'bg-gray-50 text-gray-700 border-gray-200'}`;
+    badge.textContent = reservation.estado || 'Sin estado';
+    statusCell.appendChild(badge);
+    row.appendChild(statusCell);
+
+    const actions = createCell('', 'space-x-2 whitespace-nowrap px-5 py-4 text-right align-top');
+    if (reservation.codigo && reservation.estado !== 'completada') {
+      actions.appendChild(createActionButton(
+        '✓ Completar',
+        'rounded-xl bg-[#D9EDF6] px-3 py-1.5 text-xs font-bold text-[#3b5059] hover:bg-[#c5e4f3]',
+        () => updateReservation(reservation.codigo, 'completada')
+      ));
+    }
+    if (reservation.codigo && reservation.estado !== 'cancelada') {
+      actions.appendChild(createActionButton(
+        '✕ Cancelar',
+        'rounded-xl bg-[#FADCE2] px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-200',
+        () => updateReservation(reservation.codigo, 'cancelada')
+      ));
+    }
+    row.appendChild(actions);
+    reservationsBody.appendChild(row);
+  });
+}
+
+async function loadReservations() {
+  hideMessage(dashboardMessage);
+  emptyState.classList.add('hidden');
+  reservationsBody.replaceChildren();
+
+  const loading = document.createElement('tr');
+  const loadingCell = createCell('Cargando reservas…', 'px-5 py-10 text-center text-[#8A7A75]');
+  loadingCell.colSpan = 6;
+  loading.appendChild(loadingCell);
+  reservationsBody.appendChild(loading);
+
+  const params = new URLSearchParams();
+  if (filterDate.value) params.set('fecha', filterDate.value);
+  if (filterState.value) params.set('estado', filterState.value);
+
+  try {
+    const response = await authorizedFetch(`/api/admin/reservas?${params.toString()}`);
+    const data = await readResponse(response);
+    renderReservations(data.reservas || []);
+  } catch (error) {
+    reservationsBody.replaceChildren();
+    if (error.status === 401 || error.status === 403) {
+      clearSession();
+      showLogin(error.message);
+      return;
+    }
+    showMessage(dashboardMessage, error.message);
+  }
+}
+
+async function updateReservation(codigo, estado) {
+  const action = estado === 'cancelada' ? 'cancelar el turno y liberar el horario' : 'marcar el turno como completado';
+  if (!window.confirm(`¿Querés ${action}?`)) return;
+
+  hideMessage(dashboardMessage);
+  try {
+    const response = await authorizedFetch('/api/admin/estado', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ codigo, estado })
+    });
+    await readResponse(response);
+    await loadReservations();
+  } catch (error) {
+    if (error.status === 401 || error.status === 403) {
+      clearSession();
+      showLogin(error.message);
+      return;
+    }
+    showMessage(dashboardMessage, error.message);
+  }
+}
+
+loginForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  hideMessage(loginMessage);
+  loginButton.disabled = true;
+  loginButton.textContent = 'Ingresando…';
+
+  try {
+    await signIn(
+      document.getElementById('email').value.trim(),
+      document.getElementById('password').value
+    );
+    showDashboard();
+    await loadReservations();
+  } catch (error) {
+    clearSession();
+    showLogin(error.message);
+  } finally {
+    loginButton.disabled = false;
+    loginButton.textContent = 'Iniciar sesión';
+  }
+});
+
+logoutButton.addEventListener('click', async () => {
+  if (session && session.access_token && supabaseConfig) {
+    try {
+      const response = await fetch(`${supabaseConfig.supabaseUrl}/auth/v1/logout`, {
+        method: 'POST',
+        headers: {
+          apikey: supabaseConfig.publishableKey,
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+      if (!response.ok) console.error('No se pudo cerrar la sesión en Supabase:', response.status);
+    } catch (error) {
+      console.error('No se pudo cerrar la sesión en Supabase:', error.message);
+    }
+  }
+  clearSession();
+  showLogin();
+});
+
+filterDate.addEventListener('change', loadReservations);
+filterState.addEventListener('change', loadReservations);
+document.getElementById('refresh-btn').addEventListener('click', loadReservations);
+document.getElementById('today-btn').addEventListener('click', () => {
+  filterDate.value = localDateISO();
+  loadReservations();
+});
+
+(async function initialize() {
+  filterDate.value = localDateISO();
+  try {
+    await loadConfig();
+    if (!session || !session.access_token) {
+      showLogin();
+      return;
+    }
+    showDashboard();
+    await loadReservations();
+  } catch (error) {
+    showLogin(error.message);
+  }
+})();
