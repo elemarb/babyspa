@@ -257,6 +257,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const resp = await fetch(`api/horarios.php?servicio=${state.servicio}&fecha=${state.fecha}`);
       const data = await resp.json();
 
+      if (!resp.ok) {
+        throw new Error(data.error || 'No pudimos conectar con los horarios. Por favor intentá nuevamente.');
+      }
+
       slotsContainer.innerHTML = '';
 
       if (!data.horarios || data.horarios.length === 0) {
