@@ -25,25 +25,48 @@
   </header>
 
   <main class="mx-auto max-w-7xl px-4 py-8 sm:px-8">
-    <section id="login-panel" class="mx-auto mt-10 max-w-md rounded-3xl border border-[#EFE1D8] bg-white p-7 shadow-sm sm:p-9">
-      <p class="mb-2 text-xs font-bold uppercase tracking-widest text-[#F09CB0]">Acceso privado</p>
-      <h1 class="text-3xl font-bold text-[#5B4B47]">Panel de reservas</h1>
-      <p class="mt-2 text-sm text-[#8A7A75]">Ingresá con la cuenta autorizada para administrar los turnos.</p>
+    <section id="login-panel" class="mx-auto mt-6 grid max-w-5xl grid-cols-1 overflow-hidden rounded-3xl border border-[#EFE1D8] bg-white shadow-lg sm:mt-10 md:min-h-[560px] md:grid-cols-2">
+      <div class="relative isolate flex flex-col justify-between overflow-hidden bg-[#D9EDF6] p-7 sm:p-10 lg:p-12">
+        <div aria-hidden="true" class="absolute -right-16 -top-16 -z-10 h-56 w-56 rounded-full bg-[#FADCE2]"></div>
+        <div aria-hidden="true" class="absolute -bottom-24 -left-20 -z-10 h-64 w-64 rounded-full bg-white/70"></div>
+        <div>
+          <div class="inline-flex rounded-2xl bg-white p-2 shadow-sm">
+            <img src="/logo/logo.png" alt="Baby Spa Paraguay, Lic. Rocío Vicente" class="w-48 sm:w-56">
+          </div>
+          <p class="mt-10 text-xs font-bold uppercase tracking-widest text-[#5B4B47]">Un espacio para cada familia</p>
+          <h2 class="mt-3 max-w-sm text-3xl font-bold leading-tight text-[#5B4B47] sm:text-4xl">Organizá los turnos con tranquilidad</h2>
+          <p class="mt-4 max-w-md text-sm leading-6 text-[#5B4B47]">
+            Desde tu panel podés revisar las reservas y mantener al día cada visita al spa.
+          </p>
+          <ul class="mt-8 space-y-4 text-sm font-semibold text-[#5B4B47]">
+            <li class="flex items-start gap-3"><span aria-hidden="true" class="text-[#E37F98]">✓</span><span>Consultá las reservas por fecha y estado</span></li>
+            <li class="flex items-start gap-3"><span aria-hidden="true" class="text-[#E37F98]">✓</span><span>Encontrá los datos de contacto de cada familia</span></li>
+            <li class="flex items-start gap-3"><span aria-hidden="true" class="text-[#E37F98]">✓</span><span>Actualizá el estado de cada turno</span></li>
+          </ul>
+        </div>
+        <p class="mt-10 text-xs font-semibold text-[#8A7A75]">Baby Spa Paraguay · Asunción</p>
+      </div>
 
-      <form id="login-form" class="mt-7 space-y-4">
-        <label class="block text-sm font-semibold text-[#5B4B47]">
-          Correo electrónico
-          <input id="email" type="email" autocomplete="username" required class="mt-1.5 w-full rounded-2xl border border-[#EFE1D8] px-4 py-3 text-sm outline-none focus:border-[#F09CB0]">
-        </label>
-        <label class="block text-sm font-semibold text-[#5B4B47]">
-          Contraseña
-          <input id="password" type="password" autocomplete="current-password" required class="mt-1.5 w-full rounded-2xl border border-[#EFE1D8] px-4 py-3 text-sm outline-none focus:border-[#F09CB0]">
-        </label>
-        <button id="login-btn" type="submit" class="w-full rounded-full bg-[#F09CB0] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#E37F98] disabled:cursor-wait disabled:opacity-60">
-          Iniciar sesión
-        </button>
-      </form>
-      <p id="login-message" role="status" class="mt-4 hidden rounded-2xl bg-rose-50 p-3 text-sm text-rose-700"></p>
+      <div class="flex flex-col justify-center p-7 sm:p-10 lg:p-12">
+        <p class="mb-2 text-xs font-bold uppercase tracking-widest text-[#F09CB0]">Acceso privado</p>
+        <h1 class="text-3xl font-bold text-[#5B4B47]">Entrá a tu panel</h1>
+        <p class="mt-2 text-sm leading-6 text-[#8A7A75]">Ingresá con la cuenta autorizada para administrar los turnos.</p>
+
+        <form id="login-form" class="mt-7 space-y-4">
+          <label class="block text-sm font-semibold text-[#5B4B47]">
+            Correo electrónico
+            <input id="email" type="email" autocomplete="username" required class="mt-1.5 w-full rounded-2xl border border-[#EFE1D8] bg-[#FFF8F0] px-4 py-3 text-sm text-[#5B4B47] outline-none transition focus:border-[#F09CB0] focus:ring-2 focus:ring-[#FADCE2]">
+          </label>
+          <label class="block text-sm font-semibold text-[#5B4B47]">
+            Contraseña
+            <input id="password" type="password" autocomplete="current-password" required class="mt-1.5 w-full rounded-2xl border border-[#EFE1D8] bg-[#FFF8F0] px-4 py-3 text-sm text-[#5B4B47] outline-none transition focus:border-[#F09CB0] focus:ring-2 focus:ring-[#FADCE2]">
+          </label>
+          <button id="login-btn" type="submit" class="w-full rounded-full bg-[#F09CB0] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#E37F98] focus:outline-none focus:ring-2 focus:ring-[#E37F98] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-60">
+            Iniciar sesión
+          </button>
+        </form>
+        <p id="login-message" role="status" aria-live="polite" class="mt-4 hidden rounded-2xl bg-[#FADCE2] p-3 text-sm text-[#5B4B47]"></p>
+      </div>
     </section>
 
     <section id="dashboard" class="hidden">
