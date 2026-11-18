@@ -22,12 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const defaultBookingMessage = [
-    '¡Hola! Acabo de reservar un turno en {negocio}:',
-    'Código: {codigo}',
-    'Bebé: {bebe} ({edad})',
-    'Servicio: {servicio}',
-    'Fecha: {fecha} a las {hora} hs.',
-    'Mamá/Papá: {tutor}'
+    '¡Hola! Acabo de reservar un turno en [negocio]:',
+    'Código: [codigo]',
+    'Bebé: [nombre] ([edad])',
+    'Servicio: [servicio] ([minutos] minutos)',
+    'Fecha: [fecha] a las [hora] hs. Mamá/Papá: [tutor]'
   ].join('\n');
   let businessSettings = {
     businessName: 'Baby Spa Paraguay',
@@ -70,6 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-business-address]').forEach((element) => {
       element.textContent = settings.address;
     });
+
+    const mapsLink = document.getElementById('business-maps-link');
+    if (mapsLink) {
+      const address = (settings.address || '').trim();
+      mapsLink.href = address
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+        : 'https://maps.google.com';
+    }
 
     const instagramLink = document.getElementById('business-instagram-link');
     if (instagramLink) {
@@ -239,19 +246,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function formatBookingMessage(reserva) {
+    const service = reserva.servicio || '';
+    const duration = service.match(/\((\d+)\s*min(?:utos)?\)/i);
+    const serviceName = service.replace(/\s*\(\d+\s*min(?:utos)?\)\s*$/i, '').trim();
     const values = {
       negocio: businessSettings.businessName,
       codigo: reserva.codigo || '',
+      nombre: reserva.bebe_nombre || '',
       bebe: reserva.bebe_nombre || '',
       edad: reserva.bebe_edad || '',
-      servicio: reserva.servicio || '',
+      servicio: serviceName,
+      minutos: duration ? duration[1] : '',
       fecha: formatDisplayDate(reserva.fecha),
       hora: reserva.hora || '',
       tutor: reserva.tutor_nombre || '',
       direccion: businessSettings.address || ''
     };
 
-    return businessSettings.bookingMessage.replace(/\{(negocio|codigo|bebe|edad|servicio|fecha|hora|tutor|direccion)\}/g, (placeholder, key) => values[key]);
+    return businessSettings.bookingMessage.replace(/\[(negocio|codigo|nombre|bebe|edad|servicio|minutos|fecha|hora|tutor|direccion)\]|\{(negocio|codigo|nombre|bebe|edad|servicio|minutos|fecha|hora|tutor|direccion)\}/g, (placeholder, bracketKey, legacyKey) => {
+      const key = bracketKey || legacyKey;
+      if (legacyKey && key === 'servicio') return service;
+      return values[key] == null ? placeholder : values[key];
+    });
   }
 
   // Renderizar los 14 días

@@ -894,7 +894,7 @@
               <span class="text-5xl mb-3">🗺️</span>
               <h3 class="font-heading font-bold text-text-main text-lg mb-1">Zona Villa Morra / Herrera</h3>
               <p class="text-xs text-text-muted max-w-xs mb-4">De fácil acceso con estacionamiento seguro en puerta.</p>
-              <a href="https://maps.google.com" target="_blank" rel="noopener" class="bg-white hover:bg-pink-soft text-text-main text-xs font-bold py-2.5 px-5 rounded-full border border-border-soft transition-colors inline-flex items-center gap-1.5">
+              <a id="business-maps-link" href="https://maps.google.com" target="_blank" rel="noopener" class="bg-white hover:bg-pink-soft text-text-main text-xs font-bold py-2.5 px-5 rounded-full border border-border-soft transition-colors inline-flex items-center gap-1.5">
                 <span>Abrir en Google Maps</span>
                 <span>↗</span>
               </a>

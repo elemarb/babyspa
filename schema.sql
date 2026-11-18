@@ -38,18 +38,32 @@ CREATE TABLE IF NOT EXISTS public.business_settings (
     address VARCHAR(250) NOT NULL DEFAULT 'Barrio Herrera / Villa Morra, Asunción, Paraguay',
     whatsapp VARCHAR(15) NOT NULL DEFAULT '595981123456',
     instagram VARCHAR(30) NOT NULL DEFAULT 'babyspaparaguay',
-    booking_message TEXT NOT NULL DEFAULT $message$¡Hola! Acabo de reservar un turno en {negocio}:
-Código: {codigo}
-Bebé: {bebe} ({edad})
-Servicio: {servicio}
-Fecha: {fecha} a las {hora} hs.
-Mamá/Papá: {tutor}$message$,
+    booking_message TEXT NOT NULL DEFAULT $message$¡Hola! Acabo de reservar un turno en [negocio]:
+Código: [codigo]
+Bebé: [nombre] ([edad])
+Servicio: [servicio] ([minutos] minutos)
+Fecha: [fecha] a las [hora] hs. Mamá/Papá: [tutor]$message$,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 INSERT INTO public.business_settings (id)
 VALUES (1)
 ON CONFLICT (id) DO NOTHING;
+
+UPDATE public.business_settings
+SET booking_message = $message$¡Hola! Acabo de reservar un turno en [negocio]:
+Código: [codigo]
+Bebé: [nombre] ([edad])
+Servicio: [servicio] ([minutos] minutos)
+Fecha: [fecha] a las [hora] hs. Mamá/Papá: [tutor]$message$,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = 1
+  AND booking_message = $legacy$¡Hola! Acabo de reservar un turno en {negocio}:
+Código: {codigo}
+Bebé: {bebe} ({edad})
+Servicio: {servicio}
+Fecha: {fecha} a las {hora} hs.
+Mamá/Papá: {tutor}$legacy$;
 
 ALTER TABLE public.business_settings ENABLE ROW LEVEL SECURITY;
 
