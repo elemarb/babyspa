@@ -461,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.success) {
         saveClientReservation(res.reserva);
         showConfirmation(res.reserva);
-        initClientIdentity();
+        bookingForm.reset();
         state.hora = '';
         fetchSlots(); // Refrescar slots para marcar el horario ocupado en Supabase/Neon
       } else {
