@@ -12,15 +12,15 @@
   <meta property="og:title" content="Baby Spa Paraguay | Hidroterapia y cuidado para tu bebé">
   <meta property="og:description" content="Hidroterapia, masaje infantil y cuidado suave para los primeros meses de tu bebé. Reservá tu turno en Asunción.">
   <meta property="og:url" content="https://babyspa-ebon.vercel.app/">
-  <meta property="og:image" content="https://babyspa-ebon.vercel.app/logo/logo.png">
-  <meta property="og:image:secure_url" content="https://babyspa-ebon.vercel.app/logo/logo.png">
+  <meta property="og:image" content="https://babyspa-ebon.vercel.app/logo/whatsapp-preview.png">
+  <meta property="og:image:secure_url" content="https://babyspa-ebon.vercel.app/logo/whatsapp-preview.png">
   <meta property="og:image:type" content="image/png">
-  <meta property="og:image:width" content="3637">
-  <meta property="og:image:height" content="1294">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Baby Spa Paraguay | Hidroterapia y cuidado para tu bebé">
   <meta name="twitter:description" content="Hidroterapia, masaje infantil y cuidado suave para los primeros meses de tu bebé. Reservá tu turno en Asunción.">
-  <meta name="twitter:image" content="https://babyspa-ebon.vercel.app/logo/logo.png">
+  <meta name="twitter:image" content="https://babyspa-ebon.vercel.app/logo/whatsapp-preview.png">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
