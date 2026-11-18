@@ -538,6 +538,38 @@ async function updateReservation(codigo, estado) {
   }
 }
 
+async function deleteAllReservations(button) {
+  const confirmed = window.confirm('Esta acción eliminará permanentemente todas las reservas de la base de datos, incluidas las completadas y canceladas. No se puede deshacer. ¿Querés continuar?');
+  if (!confirmed) return;
+
+  if (window.prompt('Para confirmar, escribí BORRAR TODAS:') !== 'BORRAR TODAS') return;
+
+  const originalLabel = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Eliminando…';
+  hideMessage(dashboardMessage);
+
+  try {
+    const response = await authorizedFetch('/api/admin/eliminar-reservas', {
+      method: 'POST'
+    });
+    const data = await readResponse(response);
+    await loadReservations();
+    dashboardMessage.className = 'mb-4 rounded-2xl bg-emerald-50 p-3 text-sm text-emerald-700';
+    showMessage(dashboardMessage, `Se eliminaron ${data.deletedCount} reservas de la base de datos.`);
+  } catch (error) {
+    if (error.status === 401 || error.status === 403) {
+      clearSession();
+      showLogin(error.message);
+      return;
+    }
+    showMessage(dashboardMessage, error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = originalLabel;
+  }
+}
+
 loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   hideMessage(loginMessage);
@@ -582,6 +614,9 @@ logoutButton.addEventListener('click', async () => {
 filterDate.addEventListener('change', loadReservations);
 filterState.addEventListener('change', loadReservations);
 document.getElementById('refresh-btn').addEventListener('click', loadReservations);
+document.getElementById('delete-all-reservations-btn').addEventListener('click', (event) => {
+  deleteAllReservations(event.currentTarget);
+});
 document.getElementById('today-btn').addEventListener('click', () => {
   filterDate.value = localDateISO();
   loadReservations();
