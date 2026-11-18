@@ -1,4 +1,5 @@
 const loginPanel = document.getElementById('login-panel');
+const sessionLoading = document.getElementById('session-loading');
 const dashboard = document.getElementById('dashboard');
 const loginForm = document.getElementById('login-form');
 const loginButton = document.getElementById('login-btn');
@@ -120,6 +121,7 @@ function hideMessage(element) {
 function showLogin(message = '') {
   window.clearInterval(autoRefreshTimer);
   autoRefreshTimer = null;
+  sessionLoading.classList.add('hidden');
   loginPanel.classList.remove('hidden');
   dashboard.classList.add('hidden');
   logoutButton.classList.add('hidden');
@@ -127,6 +129,7 @@ function showLogin(message = '') {
 }
 
 function showDashboard() {
+  sessionLoading.classList.add('hidden');
   loginPanel.classList.add('hidden');
   dashboard.classList.remove('hidden');
   logoutButton.classList.remove('hidden');
@@ -481,8 +484,8 @@ document.addEventListener('visibilitychange', () => {
       showLogin();
       return;
     }
-    showDashboard();
     await loadReservations();
+    if (session) showDashboard();
   } catch (error) {
     showLogin(error.message);
   }
