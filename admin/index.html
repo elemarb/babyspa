@@ -223,38 +223,40 @@
             <div id="services-list" class="grid gap-4 md:grid-cols-2">
               <p class="text-sm text-[#8A7A75]">Cargando servicios…</p>
             </div>
-
-            <form id="service-form" class="hidden space-y-4 rounded-3xl border border-[#EFE1D8] bg-[#FFF8F0] p-5">
-              <h3 id="service-form-title" class="text-lg font-bold text-[#5B4B47]">Agregar servicio</h3>
-              <input id="service-code" type="hidden">
-              <div class="grid gap-4 sm:grid-cols-2">
-                <label class="block text-sm font-semibold text-[#5B4B47] sm:col-span-2">
-                  Nombre del servicio
-                  <input id="service-name" type="text" maxlength="120" required class="mt-1.5 w-full rounded-2xl border border-[#EFE1D8] bg-white px-4 py-3 text-sm outline-none focus:border-[#F09CB0] focus:ring-2 focus:ring-[#FADCE2]">
-                </label>
-                <label class="block text-sm font-semibold text-[#5B4B47]">
-                  Duración en minutos
-                  <input id="service-duration" type="number" min="1" max="1440" step="1" required class="mt-1.5 w-full rounded-2xl border border-[#EFE1D8] bg-white px-4 py-3 text-sm outline-none focus:border-[#F09CB0] focus:ring-2 focus:ring-[#FADCE2]">
-                </label>
-                <label class="block text-sm font-semibold text-[#5B4B47]">
-                  Precio en guaraníes
-                  <input id="service-price" type="number" min="0" step="1" required class="mt-1.5 w-full rounded-2xl border border-[#EFE1D8] bg-white px-4 py-3 text-sm outline-none focus:border-[#F09CB0] focus:ring-2 focus:ring-[#FADCE2]">
-                </label>
-              </div>
-              <label class="inline-flex items-center gap-2 text-sm font-semibold text-[#5B4B47]">
-                <input id="service-active" type="checkbox" class="h-4 w-4 accent-[#F09CB0]">
-                Ofrecer este servicio en el frontend
-              </label>
-              <div class="flex flex-wrap gap-3">
-                <button id="save-service-btn" type="submit" class="rounded-full bg-[#F09CB0] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#E37F98]">Guardar servicio</button>
-                <button id="cancel-service-btn" type="button" class="rounded-full border border-[#EFE1D8] px-5 py-2.5 text-sm font-bold text-[#5B4B47] hover:bg-white">Cancelar</button>
-              </div>
-            </form>
           </section>
         </div>
       </section>
     </section>
   </main>
+  <dialog id="service-dialog" aria-labelledby="service-form-title" class="m-auto max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] max-w-xl overflow-y-auto rounded-3xl border border-[#EFE1D8] bg-[#FFF8F0] p-0 text-[#5B4B47] shadow-xl backdrop:bg-[#5B4B47]/40">
+    <form id="service-form" class="space-y-5 p-5 sm:p-6">
+      <h3 id="service-form-title" class="text-xl font-bold text-[#5B4B47]">Agregar servicio</h3>
+      <p id="service-form-message" role="status" aria-live="polite" class="hidden rounded-2xl bg-rose-50 p-3 text-sm text-rose-700"></p>
+      <input id="service-code" type="hidden">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm font-semibold text-[#5B4B47] sm:col-span-2">
+          Nombre del servicio
+          <input id="service-name" type="text" maxlength="120" required class="mt-1.5 min-h-12 w-full rounded-2xl border border-[#EFE1D8] bg-white px-4 py-3 text-base outline-none focus:border-[#F09CB0] focus:ring-2 focus:ring-[#FADCE2] sm:text-sm">
+        </label>
+        <label class="block text-sm font-semibold text-[#5B4B47]">
+          Duración en minutos
+          <input id="service-duration" type="number" min="1" max="1440" step="1" required class="mt-1.5 min-h-12 w-full rounded-2xl border border-[#EFE1D8] bg-white px-4 py-3 text-base outline-none focus:border-[#F09CB0] focus:ring-2 focus:ring-[#FADCE2] sm:text-sm">
+        </label>
+        <label class="block text-sm font-semibold text-[#5B4B47]">
+          Precio en guaraníes
+          <input id="service-price" type="number" min="0" step="1" required class="mt-1.5 min-h-12 w-full rounded-2xl border border-[#EFE1D8] bg-white px-4 py-3 text-base outline-none focus:border-[#F09CB0] focus:ring-2 focus:ring-[#FADCE2] sm:text-sm">
+        </label>
+      </div>
+      <label class="inline-flex min-h-12 items-center gap-3 text-sm font-semibold text-[#5B4B47]">
+        <input id="service-active" type="checkbox" class="h-5 w-5 accent-[#F09CB0]">
+        Ofrecer este servicio en el frontend
+      </label>
+      <div class="flex flex-col gap-3 pt-1 sm:flex-row sm:justify-end">
+        <button id="save-service-btn" type="submit" class="min-h-12 w-full rounded-full bg-[#F09CB0] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#E37F98] sm:w-auto">Guardar servicio</button>
+        <button id="cancel-service-btn" type="button" class="min-h-12 w-full rounded-full border border-[#EFE1D8] px-5 py-3 text-sm font-bold text-[#5B4B47] hover:bg-white sm:w-auto">Cancelar</button>
+      </div>
+    </form>
+  </dialog>
   <script src="/admin/admin.js" defer></script>
 </body>
 </html>

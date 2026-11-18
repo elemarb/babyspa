@@ -22,7 +22,9 @@ const saveBusinessSettingsButton = document.getElementById('save-business-settin
 const saveMessageSettingsButton = document.getElementById('save-message-settings-btn');
 const servicesList = document.getElementById('services-list');
 const servicesMessage = document.getElementById('services-message');
+const serviceDialog = document.getElementById('service-dialog');
 const serviceForm = document.getElementById('service-form');
+const serviceFormMessage = document.getElementById('service-form-message');
 const saveServiceButton = document.getElementById('save-service-btn');
 
 let currentPeriod = 'day';
@@ -344,6 +346,8 @@ function showServicesStatus(message, success = false) {
 
 function openServiceForm(service = null) {
   serviceForm.reset();
+  serviceFormMessage.textContent = '';
+  serviceFormMessage.classList.add('hidden');
   document.getElementById('service-code').value = service ? service.codigo : '';
   document.getElementById('service-name').value = service ? service.nombre : '';
   document.getElementById('service-duration').value = service ? service.duracionMinutos : '';
@@ -351,13 +355,20 @@ function openServiceForm(service = null) {
   document.getElementById('service-active').checked = service ? service.activo : true;
   document.getElementById('service-form-title').textContent = service ? 'Editar servicio' : 'Agregar servicio';
   saveServiceButton.textContent = service ? 'Guardar cambios' : 'Guardar servicio';
-  serviceForm.classList.remove('hidden');
+  if (!serviceDialog.open) serviceDialog.showModal();
   document.getElementById('service-name').focus();
 }
 
 function closeServiceForm() {
   serviceForm.reset();
-  serviceForm.classList.add('hidden');
+  serviceFormMessage.textContent = '';
+  serviceFormMessage.classList.add('hidden');
+  if (serviceDialog.open) serviceDialog.close();
+}
+
+function showServiceFormStatus(message) {
+  serviceFormMessage.textContent = message;
+  serviceFormMessage.classList.remove('hidden');
 }
 
 function renderServices(services) {
@@ -470,7 +481,8 @@ async function saveServiceChanges(service, formButton = null) {
       showLogin(error.message);
       return;
     }
-    showServicesStatus(error.message);
+    if (button === saveServiceButton) showServiceFormStatus(error.message);
+    else showServicesStatus(error.message);
   } finally {
     button.disabled = false;
     button.textContent = originalLabel;
@@ -830,6 +842,13 @@ document.getElementById('reload-services-btn').addEventListener('click', () => {
 });
 document.getElementById('add-service-btn').addEventListener('click', () => openServiceForm());
 document.getElementById('cancel-service-btn').addEventListener('click', closeServiceForm);
+serviceDialog.addEventListener('click', (event) => {
+  if (event.target === serviceDialog) closeServiceForm();
+});
+serviceDialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  closeServiceForm();
+});
 serviceForm.addEventListener('submit', (event) => {
   event.preventDefault();
   saveServiceChanges({
