@@ -15,6 +15,9 @@ let currentPeriod = 'day';
 
 let supabaseConfig;
 let session = readSession();
+let autoRefreshTimer = null;
+let isLoadingReservations = false;
+let reloadAfterCurrentRequest = false;
 
 function readSession() {
   try {
@@ -115,6 +118,8 @@ function hideMessage(element) {
 }
 
 function showLogin(message = '') {
+  window.clearInterval(autoRefreshTimer);
+  autoRefreshTimer = null;
   loginPanel.classList.remove('hidden');
   dashboard.classList.add('hidden');
   logoutButton.classList.add('hidden');
@@ -125,6 +130,10 @@ function showDashboard() {
   loginPanel.classList.add('hidden');
   dashboard.classList.remove('hidden');
   logoutButton.classList.remove('hidden');
+  window.clearInterval(autoRefreshTimer);
+  autoRefreshTimer = window.setInterval(() => {
+    if (document.visibilityState === 'visible') loadReservations();
+  }, 60000);
   hideMessage(loginMessage);
 }
 
@@ -325,6 +334,12 @@ function renderReservations(reservations) {
 }
 
 async function loadReservations() {
+  if (isLoadingReservations) {
+    reloadAfterCurrentRequest = true;
+    return;
+  }
+  isLoadingReservations = true;
+
   hideMessage(dashboardMessage);
   emptyState.classList.add('hidden');
   reservationsBody.replaceChildren();
@@ -354,9 +369,15 @@ async function loadReservations() {
     if (error.status === 401 || error.status === 403) {
       clearSession();
       showLogin(error.message);
-      return;
+    } else {
+      showMessage(dashboardMessage, error.message);
     }
-    showMessage(dashboardMessage, error.message);
+  } finally {
+    isLoadingReservations = false;
+    if (reloadAfterCurrentRequest) {
+      reloadAfterCurrentRequest = false;
+      if (session && !dashboard.classList.contains('hidden')) loadReservations();
+    }
   }
 }
 
@@ -446,6 +467,11 @@ document.querySelectorAll('.period-button').forEach((button) => {
 });
 document.getElementById('period-prev').addEventListener('click', () => shiftPeriod(-1));
 document.getElementById('period-next').addEventListener('click', () => shiftPeriod(1));
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && !dashboard.classList.contains('hidden')) {
+    loadReservations();
+  }
+});
 
 (async function initialize() {
   filterDate.value = localDateISO();
