@@ -2,6 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
+      "source": "/api/mis_turnos.php",
+      "destination": "/api/mis-turnos"
+    },
+    {
       "source": "/api/horarios.php",
       "destination": "/api/horarios"
     },

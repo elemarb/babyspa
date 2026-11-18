@@ -562,12 +562,13 @@
           <div class="flex items-center gap-3">
             <span class="text-xl">🌸</span>
             <div class="text-xs sm:text-sm text-text-main">
-              <span>¡Hola <strong id="returning-client-name" class="font-bold text-text-main"></strong>! Para una nueva reserva, completá nuevamente tus datos.</span>
+              <span id="returning-client-greeting">¡Hola <strong id="returning-client-name" class="font-bold text-text-main"></strong>! Para una nueva reserva, completá nuevamente tus datos.</span>
+              <span id="returning-client-phone-greeting" class="hidden">Encontramos tus turnos con el teléfono guardado.</span>
             </div>
           </div>
           <div class="flex items-center gap-2">
             <button type="button" id="btn-ver-mis-turnos" class="hidden text-xs font-bold text-accent-pink hover:text-accent-hover bg-white px-3 py-1.5 rounded-xl border border-pink-soft shadow-xs transition-all">
-              Ver mis turnos (<span id="cant-mis-turnos">0</span>)
+              Ver mis turnos
             </button>
             <button type="button" id="btn-olvidar-datos" class="text-[11px] text-text-muted hover:text-text-main underline">
               Cambiar datos
@@ -664,7 +665,7 @@
             </div>
 
             <!-- Nombre de mamá / papá -->
-            <div>
+            <div id="tutor-name-field">
               <label for="tutor_nombre" class="block text-xs font-semibold text-text-main mb-1">Nombre de mamá, papá o tutor *</label>
               <input type="text" id="tutor_nombre" required placeholder="Ej: Camila Moreno" class="w-full bg-white border border-border-soft rounded-2xl py-3 px-4 text-sm text-text-main focus:outline-none focus:border-accent-pink transition-colors">
               <span id="error-tutor-nombre" class="hidden text-xs text-red-500 mt-1 block">Por favor ingresá tu nombre y apellido.</span>
@@ -1025,13 +1026,17 @@
           <span class="text-xl">📅</span>
           <h3 class="font-heading font-bold text-xl text-text-main">Tus Turnos en Baby Spa</h3>
         </div>
-        <button type="button" id="close-mis-turnos-modal-btn" class="w-8 h-8 rounded-full bg-cream-base hover:bg-pink-soft text-text-main flex items-center justify-center text-sm font-bold transition-colors">
-          ✕
-        </button>
+        <div class="flex items-center gap-2">
+          <button type="button" id="refresh-my-reservations-btn" class="rounded-full bg-blue-soft px-3 py-2 text-xs font-bold text-[#3b5059] hover:bg-[#c5e4f3]">Actualizar</button>
+          <button type="button" id="close-mis-turnos-modal-btn" class="w-8 h-8 rounded-full bg-cream-base hover:bg-pink-soft text-text-main flex items-center justify-center text-sm font-bold transition-colors" aria-label="Cerrar mis turnos">
+            ✕
+          </button>
+        </div>
       </div>
 
+      <p id="mis-turnos-status" role="status" aria-live="polite" class="hidden mb-3 rounded-2xl p-3 text-sm"></p>
       <div id="mis-turnos-lista" class="space-y-3 max-h-80 overflow-y-auto pr-1">
-        <!-- Renderizado dinámico desde localStorage / Cookies / Supabase -->
+      <!-- Renderizado dinámico desde las reservas actuales -->
       </div>
 
       <div class="mt-6 pt-4 border-t border-border-soft text-center">

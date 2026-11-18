@@ -53,12 +53,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // Elementos estilo Silla Libre (Persistencia de Cliente sin Login)
   const returningBanner = document.getElementById('returning-client-banner');
   const returningName = document.getElementById('returning-client-name');
+  const returningGreeting = document.getElementById('returning-client-greeting');
+  const returningPhoneGreeting = document.getElementById('returning-client-phone-greeting');
+  const tutorNameField = document.getElementById('tutor-name-field');
   const btnVerMisTurnos = document.getElementById('btn-ver-mis-turnos');
-  const cantMisTurnos = document.getElementById('cant-mis-turnos');
   const btnOlvidar = document.getElementById('btn-olvidar-datos');
   const misTurnosModal = document.getElementById('mis-turnos-modal');
   const closeMisTurnosBtn = document.getElementById('close-mis-turnos-modal-btn');
   const misTurnosLista = document.getElementById('mis-turnos-lista');
+  const misTurnosStatus = document.getElementById('mis-turnos-status');
+  const refreshMyReservationsBtn = document.getElementById('refresh-my-reservations-btn');
 
   function applyBusinessSettings(settings) {
     businessSettings = settings;
@@ -138,91 +142,55 @@ document.addEventListener('DOMContentLoaded', () => {
     return '';
   }
 
-  function saveClientIdentity(tutor, telefono, bebe, edad) {
+  function saveClientIdentity(tutor, telefono) {
     try {
       localStorage.setItem('baby_spa_tutor', tutor);
       localStorage.setItem('baby_spa_telefono', telefono);
-      localStorage.setItem('baby_spa_bebe', bebe);
-      localStorage.setItem('baby_spa_edad', edad);
     } catch (e) {
       console.warn('LocalStorage no disponible:', e);
     }
     // Cookies persistentes de respaldo (365 días)
     setCookie('baby_spa_tutor', tutor, 365);
     setCookie('baby_spa_telefono', telefono, 365);
-    setCookie('baby_spa_bebe', bebe, 365);
-    setCookie('baby_spa_edad', edad, 365);
   }
 
   function getSavedClientIdentity() {
     let tutor = '';
     let telefono = '';
-    let bebe = '';
-    let edad = '';
 
     try {
       tutor = localStorage.getItem('baby_spa_tutor') || '';
       telefono = localStorage.getItem('baby_spa_telefono') || '';
-      bebe = localStorage.getItem('baby_spa_bebe') || '';
-      edad = localStorage.getItem('baby_spa_edad') || '';
     } catch (e) {}
 
     // Fallback a cookies si localStorage está limpio
     if (!tutor) tutor = getCookie('baby_spa_tutor');
     if (!telefono) telefono = getCookie('baby_spa_telefono');
-    if (!bebe) bebe = getCookie('baby_spa_bebe');
-    if (!edad) edad = getCookie('baby_spa_edad');
 
-    return { tutor, telefono, bebe, edad };
-  }
-
-  function saveClientReservation(reserva) {
-    try {
-      const stored = localStorage.getItem('baby_spa_reservas');
-      let list = stored ? JSON.parse(stored) : [];
-      list = list.filter(item => item.codigo !== reserva.codigo);
-      list.unshift(reserva);
-      localStorage.setItem('baby_spa_reservas', JSON.stringify(list));
-    } catch (e) {
-      console.warn('Error guardando reserva en cliente:', e);
-    }
-  }
-
-  function getClientReservations() {
-    try {
-      const stored = localStorage.getItem('baby_spa_reservas');
-      return stored ? JSON.parse(stored) : [];
-    } catch (e) {
-      return [];
-    }
+    return { tutor, telefono };
   }
 
   function initClientIdentity() {
     const saved = getSavedClientIdentity();
-    const reservas = getClientReservations();
-
     const inputTutor = document.getElementById('tutor_nombre');
-    const inputTel = document.getElementById('telefono');
-    const inputBebe = document.getElementById('bebe_nombre');
-    const inputEdad = document.getElementById('bebe_edad');
+    const hasSavedTutor = Boolean(saved.tutor.trim());
+    const hasSavedPhone = Boolean(saved.telefono.trim());
 
-    if (saved.tutor && inputTutor) {
-      inputTutor.value = saved.tutor;
-      if (saved.telefono && inputTel) inputTel.value = saved.telefono;
-      if (saved.bebe && inputBebe) inputBebe.value = saved.bebe;
-      if (saved.edad && inputEdad) inputEdad.value = saved.edad;
+    if (inputTutor) {
+      inputTutor.value = hasSavedTutor ? saved.tutor : '';
+      inputTutor.required = !hasSavedTutor;
+    }
+    if (tutorNameField) tutorNameField.classList.toggle('hidden', hasSavedTutor);
 
-      if (returningBanner && returningName) {
-        const primerNombre = saved.tutor.trim().split(' ')[0];
-        returningName.textContent = primerNombre;
-        returningBanner.classList.remove('hidden');
+    if (returningBanner && returningGreeting && returningPhoneGreeting) {
+      returningBanner.classList.toggle('hidden', !hasSavedTutor && !hasSavedPhone);
+      returningGreeting.classList.toggle('hidden', !hasSavedTutor);
+      returningPhoneGreeting.classList.toggle('hidden', hasSavedTutor || !hasSavedPhone);
+      if (hasSavedTutor && returningName) {
+        returningName.textContent = saved.tutor.trim().split(/\s+/)[0];
       }
     }
-
-    if (reservas && reservas.length > 0 && btnVerMisTurnos && cantMisTurnos) {
-      cantMisTurnos.textContent = reservas.length;
-      btnVerMisTurnos.classList.remove('hidden');
-    }
+    if (btnVerMisTurnos) btnVerMisTurnos.classList.toggle('hidden', !hasSavedPhone);
   }
 
   // Inicializar días (próximos 14 días)
@@ -530,9 +498,6 @@ document.addEventListener('DOMContentLoaded', () => {
       notas: document.getElementById('notas').value.trim()
     };
 
-    // Guardar identidad del cliente en LocalStorage y Cookies inmediatamente (Silla Libre Pattern)
-    saveClientIdentity(payload.tutor_nombre, payload.telefono, payload.bebe_nombre, payload.bebe_edad);
-
     submitBtn.disabled = true;
     submitBtn.innerHTML = `
       <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -556,9 +521,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await response.json();
 
       if (res.success) {
-        saveClientReservation(res.reserva);
+        saveClientIdentity(payload.tutor_nombre, payload.telefono);
         await showConfirmation(res.reserva);
         bookingForm.reset();
+        initClientIdentity();
         state.hora = '';
         fetchSlots(); // Refrescar slots para marcar el horario ocupado en Supabase/Neon
       } else {
@@ -622,38 +588,121 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('baby_spa_telefono');
         localStorage.removeItem('baby_spa_bebe');
         localStorage.removeItem('baby_spa_edad');
+        localStorage.removeItem('baby_spa_reservas');
       } catch (e) {}
       setCookie('baby_spa_tutor', '', -1);
       setCookie('baby_spa_telefono', '', -1);
       setCookie('baby_spa_bebe', '', -1);
       setCookie('baby_spa_edad', '', -1);
+      const tutorInput = document.getElementById('tutor_nombre');
+      if (tutorInput) {
+        tutorInput.required = true;
+        tutorNameField.classList.remove('hidden');
+      }
+      if (btnVerMisTurnos) btnVerMisTurnos.classList.add('hidden');
     });
   }
 
-  // Botón "Ver mis turnos" (Abre el listado de turnos guardados del cliente)
+  function setClientReservationsStatus(message, isError = false) {
+    misTurnosStatus.textContent = message;
+    misTurnosStatus.className = `mb-3 rounded-2xl p-3 text-sm ${isError ? 'bg-rose-50 text-rose-700' : 'bg-blue-soft text-[#3b5059]'}`;
+  }
+
+  function renderClientReservations(reservas) {
+    misTurnosLista.replaceChildren();
+
+    if (!reservas.length) {
+      setClientReservationsStatus('No encontramos reservas asociadas al teléfono guardado.');
+      return;
+    }
+
+    misTurnosStatus.classList.add('hidden');
+    const statusLabels = {
+      confirmada: 'Confirmada',
+      cancelada: 'Cancelada',
+      completada: 'Completada'
+    };
+    const statusStyles = {
+      confirmada: 'bg-emerald-50 text-emerald-700',
+      cancelada: 'bg-rose-50 text-rose-700',
+      completada: 'bg-blue-soft text-[#3b5059]'
+    };
+
+    reservas.forEach((reserva) => {
+      const card = document.createElement('article');
+      card.className = 'rounded-2xl border border-[#EFE1D8] bg-[#FFF8F0] p-4';
+
+      const header = document.createElement('div');
+      header.className = 'flex flex-wrap items-center justify-between gap-2';
+
+      const code = document.createElement('span');
+      code.className = 'text-xs font-mono font-bold text-[#F09CB0]';
+      code.textContent = reserva.codigo;
+
+      const status = document.createElement('span');
+      status.className = `rounded-full px-3 py-1 text-xs font-bold ${statusStyles[reserva.estado] || 'bg-gray-100 text-gray-700'}`;
+      status.textContent = statusLabels[reserva.estado] || 'Estado actualizado';
+      header.append(code, status);
+
+      const service = document.createElement('h4');
+      service.className = 'mt-2 font-heading text-sm font-bold text-[#5B4B47]';
+      service.textContent = reserva.servicio_nombre || reserva.servicio || '';
+
+      const date = document.createElement('p');
+      date.className = 'mt-1 text-xs text-[#8A7A75]';
+      date.textContent = `${formatDisplayDate(reserva.fecha)} a las ${reserva.hora} hs`;
+
+      const baby = document.createElement('p');
+      baby.className = 'mt-1 text-[11px] text-[#8A7A75]';
+      baby.textContent = `Bebé: ${reserva.bebe_nombre} (${reserva.bebe_edad} meses)`;
+
+      card.append(header, service, date, baby);
+      misTurnosLista.appendChild(card);
+    });
+  }
+
+  async function loadClientReservations() {
+    const saved = getSavedClientIdentity();
+    if (!saved.telefono) {
+      setClientReservationsStatus('No hay un teléfono guardado para buscar tus reservas.', true);
+      return;
+    }
+
+    setClientReservationsStatus('Buscando tus reservas…');
+    misTurnosStatus.classList.remove('hidden');
+    misTurnosLista.replaceChildren();
+    if (btnVerMisTurnos) btnVerMisTurnos.disabled = true;
+    refreshMyReservationsBtn.disabled = true;
+
+    try {
+      const response = await fetch('/api/mis_turnos.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telefono: saved.telefono })
+      });
+      const data = await response.json();
+      if (!response.ok || !Array.isArray(data.reservas)) {
+        throw new Error(data.error || 'No se pudieron cargar tus reservas.');
+      }
+      renderClientReservations(data.reservas);
+    } catch (error) {
+      setClientReservationsStatus(error.message || 'No se pudieron cargar tus reservas.', true);
+    } finally {
+      if (btnVerMisTurnos) btnVerMisTurnos.disabled = false;
+      refreshMyReservationsBtn.disabled = false;
+    }
+  }
+
+  function openClientReservations() {
+    misTurnosModal.classList.remove('hidden');
+    misTurnosModal.classList.add('flex');
+    loadClientReservations();
+  }
+
   if (btnVerMisTurnos) {
-    btnVerMisTurnos.addEventListener('click', () => {
-      const reservas = getClientReservations();
-      if (!reservas || reservas.length === 0) return;
-
-      misTurnosLista.innerHTML = reservas.map(r => `
-        <div class="bg-[#FFF8F0] rounded-2xl p-4 border border-[#EFE1D8] flex items-center justify-between gap-4 transition-all hover:border-[#F09CB0]">
-          <div>
-            <span class="text-xs font-mono font-bold text-[#F09CB0]">${r.codigo}</span>
-            <h4 class="font-heading font-bold text-sm text-[#5B4B47] mt-0.5">${r.servicio}</h4>
-            <p class="text-xs text-[#8A7A75]">${formatDisplayDate(r.fecha)} a las ${r.hora} hs</p>
-            <p class="text-[11px] text-[#8A7A75] mt-0.5">Bebé: <strong>${r.bebe_nombre}</strong> (${r.bebe_edad})</p>
-          </div>
-          <button type="button" onclick="window.verDetalleTurno('${r.codigo}')" class="bg-white hover:bg-[#FADCE2] text-[#F09CB0] font-bold text-xs py-2 px-3.5 rounded-xl border border-[#EFE1D8] shadow-xs whitespace-nowrap transition-colors">
-            Ver detalle
-          </button>
-        </div>
-      `).join('');
-
-      misTurnosModal.classList.remove('hidden');
-      misTurnosModal.classList.add('flex');
-    });
+    btnVerMisTurnos.addEventListener('click', openClientReservations);
   }
+  refreshMyReservationsBtn.addEventListener('click', loadClientReservations);
 
   if (closeMisTurnosBtn) {
     closeMisTurnosBtn.addEventListener('click', () => {
@@ -662,19 +711,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  window.verDetalleTurno = function(codigo) {
-    const reservas = getClientReservations();
-    const r = reservas.find(item => item.codigo === codigo);
-    if (r) {
-      misTurnosModal.classList.add('hidden');
-      misTurnosModal.classList.remove('flex');
-      showConfirmation(r);
-    }
-  };
-
   // Iniciar calendario y sesión de cliente
   renderDays();
-  initClientIdentity();
   bookingForm.reset();
-  window.addEventListener('pageshow', () => bookingForm.reset());
+  initClientIdentity();
+  window.addEventListener('pageshow', () => {
+    bookingForm.reset();
+    initClientIdentity();
+  });
 });

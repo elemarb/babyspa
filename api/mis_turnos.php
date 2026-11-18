@@ -1,89 +1,61 @@
 <?php
-/**
- * Baby Spa Paraguay - Consulta de Turnos del Cliente
- * Permite al cliente ver sus turnos activos sin registrar cuenta ni contraseñas,
- * utilizando su número de celular o sus códigos guardados en el navegador.
- * Compatible con PHP 5.6+
- */
-
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
+header('Cache-Control: no-store');
 
-require_once __DIR__ . '/db.php';
-
-$telefono = isset($_GET['telefono']) ? trim($_GET['telefono']) : '';
-$codigosRaw = isset($_GET['codigos']) ? trim($_GET['codigos']) : '';
-
-if (empty($telefono) && empty($codigosRaw)) {
-    echo json_encode(array(
-        'success' => true,
-        'turnos' => array()
-    ), JSON_UNESCAPED_UNICODE);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Allow: POST');
+    http_response_code(405);
+    echo json_encode(array('error' => 'Método no permitido.'), JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-$codigos = array();
-if (!empty($codigosRaw)) {
-    $partes = explode(',', $codigosRaw);
-    foreach ($partes as $p) {
-        $p = trim($p);
-        if (!empty($p)) $codigos[] = $p;
-    }
+$body = json_decode(file_get_contents('php://input'), true);
+$rawPhone = is_array($body) && isset($body['telefono']) && is_string($body['telefono'])
+    ? preg_replace('/\D/', '', $body['telefono'])
+    : '';
+
+if (strlen($rawPhone) < 8 || strlen($rawPhone) > 15) {
+    http_response_code(422);
+    echo json_encode(array('error' => 'El número de teléfono no es válido.'), JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
-// Consultar en base de datos
+$phone = strpos($rawPhone, '595') === 0
+    ? substr($rawPhone, 3)
+    : (strlen($rawPhone) === 10 && strpos($rawPhone, '0') === 0 ? substr($rawPhone, 1) : $rawPhone);
+
+require_once __DIR__ . '/db.php';
+
 try {
-    $provider = getActiveProvider();
-    $turnos = array();
+    $statement = $pdo->prepare(
+        "WITH reservas_normalizadas AS (
+            SELECT
+                codigo,
+                servicio,
+                servicio_nombre,
+                to_char(fecha, 'YYYY-MM-DD') AS fecha,
+                left(hora, 5) AS hora,
+                bebe_nombre,
+                bebe_edad,
+                estado,
+                regexp_replace(COALESCE(telefono, ''), '[^0-9]', '', 'g') AS telefono_digitos
+            FROM public.reservas
+        )
+        SELECT codigo, servicio, servicio_nombre, fecha, hora, bebe_nombre, bebe_edad, estado
+        FROM reservas_normalizadas
+        WHERE CASE
+            WHEN telefono_digitos LIKE '595%' THEN substring(telefono_digitos FROM 4)
+            WHEN length(telefono_digitos) = 10 AND telefono_digitos LIKE '0%' THEN substring(telefono_digitos FROM 2)
+            ELSE telefono_digitos
+        END = :telefono
+        ORDER BY fecha DESC, hora DESC
+        LIMIT 100"
+    );
+    $statement->execute(array(':telefono' => $phone));
 
-    if ($provider === 'supabase_api') {
-        // En Supabase buscar por teléfono o por código
-        if (!empty($telefono)) {
-            $telLimpio = preg_replace('/\D/', '', $telefono);
-            // Buscar por teléfono exacto o que contenga los últimos 8 dígitos
-            $subTel = substr($telLimpio, -8);
-            $endpoint = 'reservas?telefono=like.*' . urlencode($subTel) . '*&estado=neq.cancelada&order=fecha.desc,hora.asc';
-            $res = Database::listarReservas(null, 'confirmada', 20);
-            // Filtrar las que coinciden con el teléfono o códigos
-            foreach ($res as $r) {
-                $rTel = preg_replace('/\D/', '', isset($r['telefono']) ? $r['telefono'] : '');
-                $rCod = isset($r['codigo']) ? $r['codigo'] : '';
-                if ((!empty($subTel) && strpos($rTel, $subTel) !== false) || in_array($rCod, $codigos)) {
-                    $turnos[] = $r;
-                }
-            }
-        } elseif (!empty($codigos)) {
-            $res = Database::listarReservas(null, null, 50);
-            foreach ($res as $r) {
-                if (in_array($r['codigo'], $codigos)) {
-                    $turnos[] = $r;
-                }
-            }
-        }
-    } elseif ($provider === 'postgres_pdo') {
-        $pdo = Database::probarConexion(); // O conexión pdo
-        $all = Database::listarReservas(null, null, 100);
-        $subTel = !empty($telefono) ? substr(preg_replace('/\D/', '', $telefono), -8) : '';
-
-        foreach ($all as $r) {
-            $rTel = preg_replace('/\D/', '', isset($r['telefono']) ? $r['telefono'] : '');
-            $rCod = isset($r['codigo']) ? $r['codigo'] : '';
-            if ((!empty($subTel) && strpos($rTel, $subTel) !== false) || in_array($rCod, $codigos)) {
-                $turnos[] = $r;
-            }
-        }
-    }
-
-    echo json_encode(array(
-        'success' => true,
-        'total' => count($turnos),
-        'turnos' => $turnos
-    ), JSON_UNESCAPED_UNICODE);
-
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(array(
-        'success' => false,
-        'error' => $e->getMessage()
-    ), JSON_UNESCAPED_UNICODE);
+    echo json_encode(array('reservas' => $statement->fetchAll()), JSON_UNESCAPED_UNICODE);
+} catch (Throwable $error) {
+    error_log('No se pudieron consultar las reservas del cliente: ' . $error->getMessage());
+    http_response_code(503);
+    echo json_encode(array('error' => 'No se pudieron cargar las reservas. Intentá nuevamente.'), JSON_UNESCAPED_UNICODE);
 }
