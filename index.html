@@ -6,6 +6,21 @@
   <title>Baby Spa Paraguay | Primer Spa y Centro de Hidroterapia Infantil en Asunción</title>
   <meta name="description" content="Hidroterapia, masaje infantil, estimulación temprana y spa post vacuna en Asunción. Atención profesional y personalizada. Agua purificada a 36°C. Reservá tu turno online.">
   <link rel="icon" type="image/png" href="logo/logo.png">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_PY">
+  <meta property="og:site_name" content="Baby Spa Paraguay">
+  <meta property="og:title" content="Baby Spa Paraguay | Hidroterapia y cuidado para tu bebé">
+  <meta property="og:description" content="Hidroterapia, masaje infantil y cuidado suave para los primeros meses de tu bebé. Reservá tu turno en Asunción.">
+  <meta property="og:url" content="https://babyspa-ebon.vercel.app/">
+  <meta property="og:image" content="https://babyspa-ebon.vercel.app/logo/logo.png">
+  <meta property="og:image:secure_url" content="https://babyspa-ebon.vercel.app/logo/logo.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="3637">
+  <meta property="og:image:height" content="1294">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Baby Spa Paraguay | Hidroterapia y cuidado para tu bebé">
+  <meta name="twitter:description" content="Hidroterapia, masaje infantil y cuidado suave para los primeros meses de tu bebé. Reservá tu turno en Asunción.">
+  <meta name="twitter:image" content="https://babyspa-ebon.vercel.app/logo/logo.png">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
