@@ -9,6 +9,9 @@ const emptyState = document.getElementById('empty-state');
 const filterDate = document.getElementById('filter-date');
 const filterState = document.getElementById('filter-state');
 const logoutButton = document.getElementById('logout-btn');
+const periodLabel = document.getElementById('period-label');
+
+let currentPeriod = 'day';
 
 let supabaseConfig;
 let session = readSession();
@@ -41,6 +44,64 @@ function localDateISO() {
   }).formatToParts(new Date());
   const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
   return `${values.year}-${values.month}-${values.day}`;
+}
+
+function parseLocalDate(value) {
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function toDateISO(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getPeriodRange() {
+  const anchor = parseLocalDate(filterDate.value || localDateISO());
+  const start = new Date(anchor);
+  const end = new Date(anchor);
+
+  if (currentPeriod === 'week') {
+    start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
+    end.setDate(start.getDate() + 6);
+  } else if (currentPeriod === 'month') {
+    start.setDate(1);
+    end.setMonth(start.getMonth() + 1, 0);
+  }
+
+  const formatLabelDate = (date, options) => new Intl.DateTimeFormat('es-PY', {
+    ...options,
+    timeZone: 'UTC'
+  }).format(new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())));
+
+  if (currentPeriod === 'week') {
+    periodLabel.textContent = `Semana ${formatLabelDate(start, { day: 'numeric', month: 'short' })} – ${formatLabelDate(end, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  } else if (currentPeriod === 'month') {
+    periodLabel.textContent = formatLabelDate(start, { month: 'long', year: 'numeric' });
+  } else {
+    periodLabel.textContent = formatLabelDate(start, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  return { start: toDateISO(start), end: toDateISO(end) };
+}
+
+function shiftPeriod(direction) {
+  const anchor = parseLocalDate(filterDate.value || localDateISO());
+  if (currentPeriod === 'week') {
+    anchor.setDate(anchor.getDate() + direction * 7);
+  } else if (currentPeriod === 'month') {
+    const day = anchor.getDate();
+    anchor.setDate(1);
+    anchor.setMonth(anchor.getMonth() + direction);
+    const lastDay = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0).getDate();
+    anchor.setDate(Math.min(day, lastDay));
+  } else {
+    anchor.setDate(anchor.getDate() + direction);
+  }
+  filterDate.value = toDateISO(anchor);
+  loadReservations();
 }
 
 function showMessage(element, message) {
@@ -152,7 +213,33 @@ function renderReservations(reservations) {
   reservationsBody.replaceChildren();
   emptyState.classList.toggle('hidden', reservations.length !== 0);
 
+  const reservationsPerDay = new Map();
+  reservations.forEach(({ fecha }) => {
+    reservationsPerDay.set(fecha, (reservationsPerDay.get(fecha) || 0) + 1);
+  });
+
+  let previousDate = '';
   reservations.forEach((reservation) => {
+    if (currentPeriod !== 'day' && reservation.fecha !== previousDate) {
+      const dayRow = document.createElement('tr');
+      dayRow.className = 'bg-[#FFF8F0]';
+      const dayCell = createCell('', 'px-5 py-3 font-bold capitalize text-[#5B4B47]');
+      dayCell.colSpan = 6;
+      const date = parseLocalDate(reservation.fecha);
+      const dateLabel = new Intl.DateTimeFormat('es-PY', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC'
+      }).format(new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())));
+      const count = reservationsPerDay.get(reservation.fecha);
+      dayCell.textContent = `${dateLabel} · ${count} ${count === 1 ? 'turno' : 'turnos'}`;
+      dayRow.appendChild(dayCell);
+      reservationsBody.appendChild(dayRow);
+      previousDate = reservation.fecha;
+    }
+
     const row = document.createElement('tr');
     row.className = 'hover:bg-[#FFF8F0]/50';
 
@@ -241,6 +328,7 @@ async function loadReservations() {
   hideMessage(dashboardMessage);
   emptyState.classList.add('hidden');
   reservationsBody.replaceChildren();
+  const range = getPeriodRange();
 
   const loading = document.createElement('tr');
   const loadingCell = createCell('Cargando reservas…', 'px-5 py-10 text-center text-[#8A7A75]');
@@ -249,7 +337,12 @@ async function loadReservations() {
   reservationsBody.appendChild(loading);
 
   const params = new URLSearchParams();
-  if (filterDate.value) params.set('fecha', filterDate.value);
+  if (currentPeriod === 'day') {
+    if (filterDate.value) params.set('fecha', filterDate.value);
+  } else {
+    params.set('desde', range.start);
+    params.set('hasta', range.end);
+  }
   if (filterState.value) params.set('estado', filterState.value);
 
   try {
@@ -338,6 +431,21 @@ document.getElementById('today-btn').addEventListener('click', () => {
   filterDate.value = localDateISO();
   loadReservations();
 });
+document.querySelectorAll('.period-button').forEach((button) => {
+  button.addEventListener('click', () => {
+    currentPeriod = button.dataset.period;
+    document.querySelectorAll('.period-button').forEach((periodButton) => {
+      const selected = periodButton === button;
+      periodButton.setAttribute('aria-pressed', String(selected));
+      periodButton.classList.toggle('bg-[#F09CB0]', selected);
+      periodButton.classList.toggle('text-white', selected);
+      periodButton.classList.toggle('text-[#5B4B47]', !selected);
+    });
+    loadReservations();
+  });
+});
+document.getElementById('period-prev').addEventListener('click', () => shiftPeriod(-1));
+document.getElementById('period-next').addEventListener('click', () => shiftPeriod(1));
 
 (async function initialize() {
   filterDate.value = localDateISO();

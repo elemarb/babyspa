@@ -81,7 +81,7 @@
         </div>
         <div class="flex flex-wrap items-end gap-3 rounded-2xl border border-[#EFE1D8] bg-white p-3">
           <label class="text-xs font-bold text-[#8A7A75]">
-            Fecha
+            Fecha de referencia
             <input id="filter-date" type="date" class="mt-1 block rounded-xl border border-[#EFE1D8] bg-[#FFF8F0] px-3 py-2 text-sm text-[#5B4B47]">
           </label>
           <label class="text-xs font-bold text-[#8A7A75]">
@@ -95,6 +95,19 @@
           </label>
           <button id="today-btn" type="button" class="rounded-full border border-[#EFE1D8] px-4 py-2 text-sm font-bold text-[#5B4B47] hover:bg-[#FFF8F0]">Hoy</button>
           <button id="refresh-btn" type="button" class="rounded-full bg-[#D9EDF6] px-4 py-2 text-sm font-bold text-[#3b5059] hover:bg-[#c5e4f3]">Actualizar</button>
+        </div>
+      </div>
+
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#EFE1D8] bg-white p-3">
+        <div class="inline-flex rounded-full bg-[#FFF8F0] p-1" role="group" aria-label="Período de reservas">
+          <button type="button" data-period="day" aria-pressed="true" class="period-button rounded-full bg-[#F09CB0] px-4 py-2 text-sm font-bold text-white">Día</button>
+          <button type="button" data-period="week" aria-pressed="false" class="period-button rounded-full px-4 py-2 text-sm font-bold text-[#5B4B47] hover:bg-[#FADCE2]">Semana</button>
+          <button type="button" data-period="month" aria-pressed="false" class="period-button rounded-full px-4 py-2 text-sm font-bold text-[#5B4B47] hover:bg-[#FADCE2]">Mes</button>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="period-prev" type="button" aria-label="Período anterior" class="rounded-full border border-[#EFE1D8] px-3 py-2 text-sm font-bold text-[#5B4B47] hover:bg-[#FFF8F0]">←</button>
+          <p id="period-label" class="min-w-48 text-center text-sm font-bold capitalize text-[#5B4B47]" aria-live="polite"></p>
+          <button id="period-next" type="button" aria-label="Período siguiente" class="rounded-full border border-[#EFE1D8] px-3 py-2 text-sm font-bold text-[#5B4B47] hover:bg-[#FFF8F0]">→</button>
         </div>
       </div>
 
