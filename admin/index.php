@@ -226,7 +226,7 @@ $provider = getActiveProvider();
                                     ✓ Completar
                                 </button>
                             ` : ''}
-                            ${r.estado !== 'cancelada' ? `
+                            ${r.estado !== 'cancelada' && r.estado !== 'completada' ? `
                                 <button onclick="cambiarEstado('${r.codigo}', 'cancelada')" class="text-xs font-bold bg-[#FADCE2] hover:bg-[#f5b8c6] text-[#c04362] px-2.5 py-1.5 rounded-xl transition-all" title="Cancelar turno y liberar horario">
                                     ✕ Cancelar
                                 </button>

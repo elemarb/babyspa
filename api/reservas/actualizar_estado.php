@@ -43,12 +43,44 @@ if (empty($codigo) || !in_array($nuevoEstado, $estadosValidos)) {
 }
 
 try {
-    $actualizado = Database::actualizarEstado($codigo, $nuevoEstado);
+    $stmt = $pdo->prepare(
+        "UPDATE public.reservas
+         SET estado = :estado
+         WHERE codigo = :codigo
+           AND NOT (estado = 'completada' AND :estado_cancelacion = 'cancelada')"
+    );
+    $stmt->execute(array(
+        ':estado' => $nuevoEstado,
+        ':codigo' => $codigo,
+        ':estado_cancelacion' => $nuevoEstado
+    ));
+
+    if ($stmt->rowCount() === 0) {
+        $consulta = $pdo->prepare('SELECT estado FROM public.reservas WHERE codigo = :codigo');
+        $consulta->execute(array(':codigo' => $codigo));
+        $reserva = $consulta->fetch(PDO::FETCH_ASSOC);
+
+        if (!$reserva) {
+            http_response_code(404);
+            echo json_encode(array('success' => false, 'error' => 'No se encontró la reserva.'), JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        if ($nuevoEstado === 'cancelada' && $reserva['estado'] === 'completada') {
+            http_response_code(409);
+            echo json_encode(array('success' => false, 'error' => 'Una reserva completada no se puede cancelar.'), JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        http_response_code(409);
+        echo json_encode(array('success' => false, 'error' => 'No se pudo actualizar el estado de la reserva.'), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     echo json_encode(array(
-        'success' => $actualizado,
+        'success' => true,
         'codigo' => $codigo,
         'nuevo_estado' => $nuevoEstado,
-        'mensaje' => $actualizado ? 'Estado actualizado correctamente.' : 'No se pudo actualizar la reserva.'
+        'mensaje' => 'Estado actualizado correctamente.'
     ), JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);

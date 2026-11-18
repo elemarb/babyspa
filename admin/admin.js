@@ -455,7 +455,7 @@ function renderReservations(reservations) {
         () => updateReservation(reservation.codigo, 'completada')
       ));
     }
-    if (reservation.codigo && reservation.estado !== 'cancelada') {
+    if (reservation.codigo && reservation.estado !== 'cancelada' && reservation.estado !== 'completada') {
       actions.appendChild(createActionButton(
         '✕ Cancelar',
         'rounded-xl bg-[#FADCE2] px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-200',

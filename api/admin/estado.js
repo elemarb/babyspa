@@ -21,13 +21,28 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const result = await getPool().query(
-      'UPDATE public.reservas SET estado = $1 WHERE codigo = $2 RETURNING codigo',
+    const pool = getPool();
+    const result = await pool.query(
+      `UPDATE public.reservas
+       SET estado = $1
+       WHERE codigo = $2
+         AND NOT (estado = 'completada' AND $1 = 'cancelada')
+       RETURNING codigo`,
       [estado, codigo]
     );
 
     if (!result.rowCount) {
-      return res.status(404).json({ error: 'No se encontró la reserva.' });
+      const current = await pool.query(
+        'SELECT estado FROM public.reservas WHERE codigo = $1',
+        [codigo]
+      );
+      if (!current.rowCount) {
+        return res.status(404).json({ error: 'No se encontró la reserva.' });
+      }
+      if (estado === 'cancelada' && current.rows[0].estado === 'completada') {
+        return res.status(409).json({ error: 'Una reserva completada no se puede cancelar.' });
+      }
+      return res.status(409).json({ error: 'No se pudo actualizar el estado de la reserva.' });
     }
 
     return res.status(200).json({ success: true });
