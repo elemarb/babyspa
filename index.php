@@ -546,7 +546,7 @@
           <div class="flex items-center gap-3">
             <span class="text-xl">🌸</span>
             <div class="text-xs sm:text-sm text-text-main">
-              <span>¡Hola <strong id="returning-client-name" class="font-bold text-text-main"></strong>! Recordamos tus datos para que reserves en 1 click.</span>
+              <span>¡Hola <strong id="returning-client-name" class="font-bold text-text-main"></strong>! Para una nueva reserva, completá nuevamente tus datos.</span>
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -627,7 +627,7 @@
         </div>
 
         <!-- Paso 4: Formulario de Datos del Bebé y Contacto -->
-        <form id="booking-form" class="space-y-4 pt-2">
+        <form id="booking-form" autocomplete="off" class="space-y-4 pt-2">
           <label class="block text-xs font-bold uppercase tracking-wider text-text-muted">
             4. Datos para completar la reserva:
           </label>

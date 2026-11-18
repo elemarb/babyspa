@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const slotsEmpty = document.getElementById('slots-empty');
   const selectedDateLabel = document.getElementById('selected-date-label');
   const bookingForm = document.getElementById('booking-form');
+  bookingForm.setAttribute('autocomplete', 'off');
   const submitBtn = document.getElementById('submit-booking-btn');
   const confirmationModal = document.getElementById('confirmation-modal');
   const closeModalBtn = document.getElementById('close-modal-btn');
@@ -584,4 +585,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Iniciar calendario y sesión de cliente
   renderDays();
   initClientIdentity();
+  bookingForm.reset();
+  window.addEventListener('pageshow', () => bookingForm.reset());
 });
