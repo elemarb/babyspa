@@ -480,12 +480,12 @@
         <div>
           <span class="text-xs font-bold uppercase tracking-widest text-accent-pink bg-pink-soft py-1 px-3 rounded-full">Comunidad</span>
           <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-main mt-3">
-            Momentos en Baby Spa Paraguay
+            Momentos en <span data-business-name>Baby Spa Paraguay</span>
           </h2>
           <p class="text-xs text-text-muted mt-1">Imágenes ilustrativas del entorno y dinámicas con consentimiento parental informado.</p>
         </div>
-        <a href="https://instagram.com/babyspaparaguay" target="_blank" rel="noopener" class="mt-4 md:mt-0 inline-flex items-center gap-2 text-xs font-bold text-accent-pink hover:text-accent-hover bg-white border border-border-soft py-2.5 px-5 rounded-full shadow-xs transition-all">
-          <span>Seguinos en @babyspaparaguay</span>
+        <a id="business-instagram-link" href="https://instagram.com/babyspaparaguay" target="_blank" rel="noopener" class="mt-4 md:mt-0 inline-flex items-center gap-2 text-xs font-bold text-accent-pink hover:text-accent-hover bg-white border border-border-soft py-2.5 px-5 rounded-full shadow-xs transition-all">
+          <span data-instagram-label>Seguinos en @babyspaparaguay</span>
           <span>📸</span>
         </a>
       </div>
@@ -866,7 +866,7 @@
                 <span class="text-lg text-accent-pink">📍</span>
                 <div>
                   <strong class="text-text-main">Dirección:</strong>
-                  <p class="text-text-muted text-xs">Barrio Herrera / Villa Morra, Asunción, Paraguay.</p>
+                  <p class="text-text-muted text-xs" data-business-address>Barrio Herrera / Villa Morra, Asunción, Paraguay</p>
                 </div>
               </div>
 
@@ -929,17 +929,17 @@
         <img src="logo/logo.png" alt="Baby Spa Paraguay - Lic. Rocío Vicente" class="h-9 w-auto object-contain">
       </div>
       <div>
-        Atención con turno previo en Asunción, Paraguay.
+        <span data-business-address>Atención con turno previo en Asunción, Paraguay.</span>
       </div>
       <div>
-        © 2026 Baby Spa Paraguay. Todos los derechos reservados.
+        © 2026 <span data-business-name>Baby Spa Paraguay</span>. Todos los derechos reservados.
       </div>
     </div>
   </footer>
 
   <!-- ================= BOTÓN FLOTANTE DE WHATSAPP ================= -->
   <aside aria-label="Contacto por WhatsApp" class="fixed bottom-6 right-6 z-40">
-    <a href="https://wa.me/595981123456?text=Hola%20Lic.%20Roc%C3%ADo,%20quisiera%20consultar%20sobre%20los%20turnos%20en%20Baby%20Spa%20Paraguay" target="_blank" rel="noopener" class="flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white py-3 px-5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-bold text-sm">
+    <a id="whatsapp-contact-link" href="https://wa.me/595981123456?text=Hola%2C%20quisiera%20consultar%20sobre%20los%20turnos%20en%20Baby%20Spa%20Paraguay" target="_blank" rel="noopener" class="flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white py-3 px-5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-bold text-sm">
       <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.97.53 1.77.781 2.796.782 3.182 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.768-5.768-5.768zm7.14 5.767c-.002 3.942-3.208 7.148-7.141 7.148-1.206 0-2.39-.304-3.43-.882l-3.8 1 1.018-3.719c-.642-1.077-.981-2.311-.981-3.547 0-3.942 3.206-7.148 7.14-7.148 3.935 0 7.194 3.206 7.194 7.148z"/></svg>
       <span class="hidden sm:inline">Consultar por WhatsApp</span>
     </a>
@@ -954,7 +954,7 @@
           ✨
         </div>
         <h3 class="font-heading font-bold text-2xl text-text-main">¡Turno Confirmado con Éxito!</h3>
-        <p class="text-xs text-text-muted mt-1">Tu reserva ha sido registrada en Baby Spa Paraguay.</p>
+        <p class="text-xs text-text-muted mt-1">Tu reserva ha sido registrada en <span data-business-name>Baby Spa Paraguay</span>.</p>
       </div>
 
       <!-- Ficha resumen del turno -->
@@ -984,7 +984,7 @@
       <!-- Acciones de confirmación: Calendar & WhatsApp -->
       <div class="space-y-2.5">
         <a id="whatsapp-share-btn" href="#" target="_blank" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-white py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors">
-          <span>Enviar confirmación por WhatsApp a Lic. Rocío</span>
+          <span>Preparar confirmación en WhatsApp</span>
           <span>📲</span>
         </a>
 
@@ -1020,7 +1020,7 @@
 
       <div class="mt-6 pt-4 border-t border-border-soft text-center">
         <p class="text-xs text-text-muted mb-3">¿Tenés alguna consulta o querés modificar tu turno?</p>
-        <a href="https://wa.me/595981123456?text=Hola%20Lic.%20Roc%C3%ADo,%20quisiera%20consultar%20sobre%20mi%20turno%20en%20Baby%20Spa" target="_blank" class="inline-flex items-center gap-2 bg-[#25D366] text-white text-xs font-bold py-2.5 px-5 rounded-full hover:bg-[#20ba59] transition-colors">
+        <a id="my-turns-whatsapp-link" href="https://wa.me/595981123456?text=Hola%2C%20quisiera%20consultar%20sobre%20mi%20turno%20en%20Baby%20Spa%20Paraguay" target="_blank" class="inline-flex items-center gap-2 bg-[#25D366] text-white text-xs font-bold py-2.5 px-5 rounded-full hover:bg-[#20ba59] transition-colors">
           <span>Escribir a Lic. Rocío por WhatsApp</span>
           <span>📲</span>
         </a>

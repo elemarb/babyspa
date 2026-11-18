@@ -21,6 +21,22 @@ document.addEventListener('DOMContentLoaded', () => {
     'post-vacuna': 'Spa Post-Vacuna & Alivio (30 min)'
   };
 
+  const defaultBookingMessage = [
+    '¡Hola! Acabo de reservar un turno en {negocio}:',
+    'Código: {codigo}',
+    'Bebé: {bebe} ({edad})',
+    'Servicio: {servicio}',
+    'Fecha: {fecha} a las {hora} hs.',
+    'Mamá/Papá: {tutor}'
+  ].join('\n');
+  let businessSettings = {
+    businessName: 'Baby Spa Paraguay',
+    address: 'Barrio Herrera / Villa Morra, Asunción, Paraguay',
+    whatsapp: '595981123456',
+    instagram: 'babyspaparaguay',
+    bookingMessage: defaultBookingMessage
+  };
+
   // Elementos del DOM
   const serviceButtons = document.querySelectorAll('.service-tab-btn');
   const daysContainer = document.getElementById('days-container');
@@ -44,6 +60,54 @@ document.addEventListener('DOMContentLoaded', () => {
   const misTurnosModal = document.getElementById('mis-turnos-modal');
   const closeMisTurnosBtn = document.getElementById('close-mis-turnos-modal-btn');
   const misTurnosLista = document.getElementById('mis-turnos-lista');
+
+  function applyBusinessSettings(settings) {
+    businessSettings = settings;
+    document.title = `${settings.businessName} | Primer Spa y Centro de Hidroterapia Infantil en Asunción`;
+    document.querySelectorAll('[data-business-name]').forEach((element) => {
+      element.textContent = settings.businessName;
+    });
+    document.querySelectorAll('[data-business-address]').forEach((element) => {
+      element.textContent = settings.address;
+    });
+
+    const instagramLink = document.getElementById('business-instagram-link');
+    if (instagramLink) {
+      if (settings.instagram) {
+        instagramLink.href = `https://instagram.com/${encodeURIComponent(settings.instagram)}`;
+        instagramLink.classList.remove('hidden');
+        const label = instagramLink.querySelector('[data-instagram-label]');
+        if (label) label.textContent = `Seguinos en @${settings.instagram}`;
+      } else {
+        instagramLink.classList.add('hidden');
+      }
+    }
+
+    const contactLink = document.getElementById('whatsapp-contact-link');
+    const myTurnsLink = document.getElementById('my-turns-whatsapp-link');
+    if (contactLink) {
+      contactLink.href = `https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(`Hola, quisiera consultar sobre los turnos en ${settings.businessName}`)}`;
+    }
+    if (myTurnsLink) {
+      myTurnsLink.href = `https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(`Hola, quisiera consultar sobre mi turno en ${settings.businessName}`)}`;
+    }
+  }
+
+  async function loadPublicBusinessSettings() {
+    try {
+      const response = await fetch('/api/configuracion');
+      const data = await response.json();
+      if (!response.ok || !data.settings) {
+        throw new Error(data.error || 'No se pudo cargar la configuración del negocio.');
+      }
+      applyBusinessSettings(data.settings);
+    } catch (error) {
+      console.error('No se pudo cargar la configuración pública del negocio:', error.message);
+      applyBusinessSettings(businessSettings);
+    }
+  }
+
+  const publicSettingsReady = loadPublicBusinessSettings();
 
   // =========================================================================
   // GESTIÓN DE CLIENTE SIN LOGIN (Mecanismo Silla Libre: Cookies + LocalStorage)
@@ -172,6 +236,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const diaNombre = diasSemanas[date.getDay()];
     const mesNombre = meses[date.getMonth()];
     return `${diaNombre} ${parseInt(d)} de ${mesNombre}`;
+  }
+
+  function formatBookingMessage(reserva) {
+    const values = {
+      negocio: businessSettings.businessName,
+      codigo: reserva.codigo || '',
+      bebe: reserva.bebe_nombre || '',
+      edad: reserva.bebe_edad || '',
+      servicio: reserva.servicio || '',
+      fecha: formatDisplayDate(reserva.fecha),
+      hora: reserva.hora || '',
+      tutor: reserva.tutor_nombre || '',
+      direccion: businessSettings.address || ''
+    };
+
+    return businessSettings.bookingMessage.replace(/\{(negocio|codigo|bebe|edad|servicio|fecha|hora|tutor|direccion)\}/g, (placeholder, key) => values[key]);
   }
 
   // Renderizar los 14 días
@@ -461,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (res.success) {
         saveClientReservation(res.reserva);
-        showConfirmation(res.reserva);
+        await showConfirmation(res.reserva);
         bookingForm.reset();
         state.hora = '';
         fetchSlots(); // Refrescar slots para marcar el horario ocupado en Supabase/Neon
@@ -488,25 +568,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Pantalla de Confirmación
-  function showConfirmation(reserva) {
+  async function showConfirmation(reserva) {
+    await publicSettingsReady;
     document.getElementById('confirm-codigo').textContent = reserva.codigo;
     document.getElementById('confirm-servicio').textContent = reserva.servicio;
     document.getElementById('confirm-fecha-hora').textContent = `${formatDisplayDate(reserva.fecha)} a las ${reserva.hora} hs`;
     document.getElementById('confirm-bebe').textContent = `${reserva.bebe_nombre} (${reserva.bebe_edad})`;
     document.getElementById('confirm-tutor').textContent = `${reserva.tutor_nombre} (${reserva.telefono})`;
 
-    const waText = encodeURIComponent(
-      `¡Hola Lic. Rocío! Acabo de reservar un turno en Baby Spa Paraguay:\n` +
-      `Código: ${reserva.codigo}\n` +
-      `Bebé: ${reserva.bebe_nombre} (${reserva.bebe_edad})\n` +
-      `Servicio: ${reserva.servicio}\n` +
-      `Fecha: ${formatDisplayDate(reserva.fecha)} a las ${reserva.hora} hs.\n` +
-      `Mamá/Papá: ${reserva.tutor_nombre}`
-    );
-    whatsappShareBtn.href = `https://wa.me/595981123456?text=${waText}`;
+    const waText = encodeURIComponent(formatBookingMessage(reserva));
+    whatsappShareBtn.href = `https://wa.me/${businessSettings.whatsapp}?text=${waText}`;
 
     const startDateTime = reserva.fecha.replace(/-/g, '') + 'T' + reserva.hora.replace(':', '') + '00';
-    const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sesión en Baby Spa Paraguay - ' + reserva.bebe_nombre)}&dates=${startDateTime}/${startDateTime}&details=${encodeURIComponent('Turno confirmado: ' + reserva.servicio + ' para ' + reserva.bebe_nombre + '. Lugar: Barrio Herrera, Asunción.')}&location=${encodeURIComponent('Baby Spa Paraguay, Asunción')}`;
+    const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Sesión en ${businessSettings.businessName} - ${reserva.bebe_nombre}`)}&dates=${startDateTime}/${startDateTime}&details=${encodeURIComponent(`Turno confirmado: ${reserva.servicio} para ${reserva.bebe_nombre}. Lugar: ${businessSettings.address}.`)}&location=${encodeURIComponent(`${businessSettings.businessName}, ${businessSettings.address}`)}`;
     googleCalBtn.href = calUrl;
 
     confirmationModal.classList.remove('hidden');

@@ -31,8 +31,30 @@ CREATE INDEX IF NOT EXISTS idx_reservas_fecha ON reservas(fecha);
 CREATE INDEX IF NOT EXISTS idx_reservas_codigo ON reservas(codigo);
 CREATE INDEX IF NOT EXISTS idx_reservas_estado ON reservas(estado);
 
+-- 4. Configuración pública del negocio y plantilla de confirmación por WhatsApp
+CREATE TABLE IF NOT EXISTS public.business_settings (
+    id SMALLINT PRIMARY KEY CHECK (id = 1),
+    business_name VARCHAR(100) NOT NULL DEFAULT 'Baby Spa Paraguay',
+    address VARCHAR(250) NOT NULL DEFAULT 'Barrio Herrera / Villa Morra, Asunción, Paraguay',
+    whatsapp VARCHAR(15) NOT NULL DEFAULT '595981123456',
+    instagram VARCHAR(30) NOT NULL DEFAULT 'babyspaparaguay',
+    booking_message TEXT NOT NULL DEFAULT $message$¡Hola! Acabo de reservar un turno en {negocio}:
+Código: {codigo}
+Bebé: {bebe} ({edad})
+Servicio: {servicio}
+Fecha: {fecha} a las {hora} hs.
+Mamá/Papá: {tutor}$message$,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO public.business_settings (id)
+VALUES (1)
+ON CONFLICT (id) DO NOTHING;
+
+ALTER TABLE public.business_settings ENABLE ROW LEVEL SECURITY;
+
 -- ====================================================================
--- 4. Políticas de Seguridad RLS (Específico para Supabase)
+-- 5. Políticas de Seguridad RLS (Específico para Supabase)
 -- En Neon esto no afecta, pero en Supabase activa el acceso seguro vía API REST
 -- ====================================================================
 ALTER TABLE reservas ENABLE ROW LEVEL SECURITY;
@@ -56,7 +78,7 @@ ON reservas FOR UPDATE
 USING (true);
 
 -- ====================================================================
--- 5. Datos de prueba iniciales (opcional)
+-- 6. Datos de prueba iniciales (opcional)
 -- Descomentar si deseas tener turnos ya ocupados de prueba para hoy/mañana:
 -- ====================================================================
 -- INSERT INTO reservas (codigo, servicio, servicio_nombre, fecha, hora, bebe_nombre, bebe_edad, tutor_nombre, telefono, notas, estado)

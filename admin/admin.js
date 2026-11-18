@@ -11,8 +11,20 @@ const filterDate = document.getElementById('filter-date');
 const filterState = document.getElementById('filter-state');
 const logoutButton = document.getElementById('logout-btn');
 const periodLabel = document.getElementById('period-label');
+const adminNav = document.getElementById('admin-nav');
+const reservationsView = document.getElementById('reservations-view');
+const settingsView = document.getElementById('settings-view');
+const settingsMessage = document.getElementById('settings-message');
+const settingsReloadButton = document.getElementById('settings-reload-btn');
+const businessSettingsForm = document.getElementById('settings-business-form');
+const messagesSettingsForm = document.getElementById('settings-messages-form');
+const saveBusinessSettingsButton = document.getElementById('save-business-settings-btn');
+const saveMessageSettingsButton = document.getElementById('save-message-settings-btn');
 
 let currentPeriod = 'day';
+let businessSettings = null;
+let settingsLoaded = false;
+let isLoadingSettings = false;
 
 let supabaseConfig;
 let session = readSession();
@@ -124,6 +136,8 @@ function showLogin(message = '') {
   sessionLoading.classList.add('hidden');
   loginPanel.classList.remove('hidden');
   dashboard.classList.add('hidden');
+  adminNav.classList.add('hidden');
+  adminNav.classList.remove('flex');
   logoutButton.classList.add('hidden');
   if (message) showMessage(loginMessage, message);
 }
@@ -132,12 +146,43 @@ function showDashboard() {
   sessionLoading.classList.add('hidden');
   loginPanel.classList.add('hidden');
   dashboard.classList.remove('hidden');
+  adminNav.classList.remove('hidden');
+  adminNav.classList.add('flex');
   logoutButton.classList.remove('hidden');
+  setAdminView('reservations');
   window.clearInterval(autoRefreshTimer);
   autoRefreshTimer = window.setInterval(() => {
-    if (document.visibilityState === 'visible') loadReservations();
+    if (document.visibilityState === 'visible' && !reservationsView.classList.contains('hidden')) {
+      loadReservations();
+    }
   }, 60000);
   hideMessage(loginMessage);
+}
+
+function setAdminView(view) {
+  const isSettings = view === 'settings';
+  reservationsView.classList.toggle('hidden', isSettings);
+  settingsView.classList.toggle('hidden', !isSettings);
+  document.getElementById('nav-reservations').setAttribute('aria-current', isSettings ? 'false' : 'page');
+  document.getElementById('nav-settings').setAttribute('aria-current', isSettings ? 'page' : 'false');
+  document.getElementById('nav-reservations').classList.toggle('bg-[#FADCE2]', !isSettings);
+  document.getElementById('nav-settings').classList.toggle('bg-[#FADCE2]', isSettings);
+  if (isSettings && !settingsLoaded) loadAdminSettings();
+}
+
+function setSettingsTab(tab) {
+  const showMessages = tab === 'messages';
+  businessSettingsForm.classList.toggle('hidden', showMessages);
+  messagesSettingsForm.classList.toggle('hidden', !showMessages);
+  document.getElementById('settings-business-tab').setAttribute('aria-pressed', String(!showMessages));
+  document.getElementById('settings-messages-tab').setAttribute('aria-pressed', String(showMessages));
+  document.getElementById('settings-business-tab').classList.toggle('bg-[#F09CB0]', !showMessages);
+  document.getElementById('settings-business-tab').classList.toggle('text-white', !showMessages);
+  document.getElementById('settings-business-tab').classList.toggle('text-[#5B4B47]', showMessages);
+  document.getElementById('settings-messages-tab').classList.toggle('bg-[#F09CB0]', showMessages);
+  document.getElementById('settings-messages-tab').classList.toggle('text-white', showMessages);
+  document.getElementById('settings-messages-tab').classList.toggle('text-[#5B4B47]', !showMessages);
+  hideMessage(settingsMessage);
 }
 
 async function loadConfig() {
@@ -184,11 +229,95 @@ async function authorizedFetch(url, options = {}) {
 async function readResponse(response) {
   const data = await response.json();
   if (!response.ok) {
-    const error = new Error(data.error || 'No se pudo completar la operación.');
+    const details = data.errors ? Object.values(data.errors).join(' ') : '';
+    const error = new Error([data.error || 'No se pudo completar la operación.', details].filter(Boolean).join(' '));
     error.status = response.status;
     throw error;
   }
   return data;
+}
+
+function showSettingsStatus(message, success = false) {
+  settingsMessage.textContent = message;
+  settingsMessage.className = `mb-4 rounded-2xl p-3 text-sm ${success ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`;
+}
+
+function populateSettingsForm(settings) {
+  document.getElementById('settings-business-name').value = settings.businessName;
+  document.getElementById('settings-address').value = settings.address;
+  document.getElementById('settings-whatsapp').value = `+${settings.whatsapp}`;
+  document.getElementById('settings-instagram').value = settings.instagram ? `@${settings.instagram}` : '';
+  document.getElementById('settings-booking-message').value = settings.bookingMessage;
+}
+
+async function loadAdminSettings() {
+  if (isLoadingSettings) return;
+  isLoadingSettings = true;
+  hideMessage(settingsMessage);
+  settingsReloadButton.classList.add('hidden');
+  saveBusinessSettingsButton.disabled = true;
+  saveMessageSettingsButton.disabled = true;
+
+  try {
+    const response = await authorizedFetch('/api/admin/configuracion');
+    const data = await readResponse(response);
+    businessSettings = data.settings;
+    populateSettingsForm(businessSettings);
+    settingsLoaded = true;
+  } catch (error) {
+    if (error.status === 401 || error.status === 403) {
+      clearSession();
+      showLogin(error.message);
+    } else {
+      showSettingsStatus(error.message);
+      settingsReloadButton.classList.remove('hidden');
+    }
+  } finally {
+    isLoadingSettings = false;
+    saveBusinessSettingsButton.disabled = !settingsLoaded;
+    saveMessageSettingsButton.disabled = !settingsLoaded;
+  }
+}
+
+async function saveAdminSettings(section, button) {
+  if (!settingsLoaded) return;
+
+  const originalLabel = button.textContent;
+  const payload = { ...businessSettings };
+  if (section === 'business') {
+    payload.businessName = document.getElementById('settings-business-name').value;
+    payload.address = document.getElementById('settings-address').value;
+    payload.whatsapp = document.getElementById('settings-whatsapp').value;
+    payload.instagram = document.getElementById('settings-instagram').value;
+  } else {
+    payload.bookingMessage = document.getElementById('settings-booking-message').value;
+  }
+
+  hideMessage(settingsMessage);
+  button.disabled = true;
+  button.textContent = 'Guardando…';
+
+  try {
+    const response = await authorizedFetch('/api/admin/configuracion', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await readResponse(response);
+    businessSettings = data.settings;
+    populateSettingsForm(businessSettings);
+    showSettingsStatus('Los cambios se guardaron correctamente.', true);
+  } catch (error) {
+    if (error.status === 401 || error.status === 403) {
+      clearSession();
+      showLogin(error.message);
+      return;
+    }
+    showSettingsStatus(error.message);
+  } finally {
+    button.disabled = !settingsLoaded;
+    button.textContent = originalLabel;
+  }
 }
 
 async function signIn(email, password) {
@@ -470,8 +599,23 @@ document.querySelectorAll('.period-button').forEach((button) => {
 });
 document.getElementById('period-prev').addEventListener('click', () => shiftPeriod(-1));
 document.getElementById('period-next').addEventListener('click', () => shiftPeriod(1));
+document.getElementById('nav-reservations').addEventListener('click', () => setAdminView('reservations'));
+document.getElementById('nav-settings').addEventListener('click', () => setAdminView('settings'));
+document.getElementById('settings-business-tab').addEventListener('click', () => setSettingsTab('business'));
+document.getElementById('settings-messages-tab').addEventListener('click', () => setSettingsTab('messages'));
+settingsReloadButton.addEventListener('click', loadAdminSettings);
+businessSettingsForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  saveAdminSettings('business', saveBusinessSettingsButton);
+});
+messagesSettingsForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  saveAdminSettings('messages', saveMessageSettingsButton);
+});
+
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && !dashboard.classList.contains('hidden')) {
+  if (document.visibilityState === 'visible' && !dashboard.classList.contains('hidden') &&
+      !reservationsView.classList.contains('hidden')) {
     loadReservations();
   }
 });
