@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baby Spa Paraguay | Primer Spa y Centro de Hidroterapia Infantil en Asunción</title>
   <meta name="description" content="Hidroterapia, masaje infantil, estimulación temprana y spa post vacuna en Asunción. Atención profesional y personalizada. Agua purificada a 36°C. Reservá tu turno online.">
+  <link rel="icon" type="image/png" href="logo/logo.png">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
