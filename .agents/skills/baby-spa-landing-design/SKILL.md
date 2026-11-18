@@ -9,7 +9,7 @@ Esta landing tiene un solo objetivo: que una mamá o papá que llega desde Insta
 reserve un turno de hidroterapia/spa para su bebé. Todo en la página empuja hacia
 el calendario de reservas.
 
-**Marca de referencia:** Baby Spa Paraguay — Lic. Rocío Vicente, Asunción. Primer
+**Marca de referencia:** Baby Spa Paraguay, Asunción. Primer
 spa y centro de hidroestimulación y cuidados exclusivos para bebés. Instagram:
 @babyspaparaguay.
 
@@ -41,7 +41,7 @@ Si no hay respuesta, asumir el default y seguir sin frenar el trabajo.
 
 1. **Hero** — headline cálido, subheadline, CTA "Reservar turno" que ancla al
    calendario (#reservas), foto/video en loop suave de agua/bebé.
-2. **Barra de confianza** — Lic. Rocío Vicente, años de experiencia, protocolo
+2. **Barra de confianza** — equipo profesional, años de experiencia, protocolo
    de higiene y agua tratada, cantidad de bebés atendidos. Sin esto, un padre
    no confía en meter a su bebé al agua.
 3. **Servicios** — tarjetas: nombre, edad recomendada, duración, beneficio

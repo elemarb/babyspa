@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Link WhatsApp para compartir
     const waText = encodeURIComponent(
-      `¡Hola Lic. Rocío! Acabo de reservar un turno en Baby Spa Paraguay:\n` +
+      `¡Hola! Acabo de reservar un turno en Baby Spa Paraguay:\n` +
       `Código: ${reserva.codigo}\n` +
       `Bebé: ${reserva.bebe_nombre} (${reserva.bebe_edad})\n` +
       `Servicio: ${reserva.servicio}\n` +

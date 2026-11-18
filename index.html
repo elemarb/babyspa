@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baby Spa Paraguay | Primer Spa y Centro de Hidroterapia Infantil en Asunción</title>
-  <meta name="description" content="Hidroterapia, masaje infantil, estimulación temprana y spa post vacuna en Asunción. Atención profesional por la Lic. Rocío Vicente. Agua purificada a 36°C. Reservá tu turno online.">
+  <meta name="description" content="Hidroterapia, masaje infantil, estimulación temprana y spa post vacuna en Asunción. Atención profesional y personalizada. Agua purificada a 36°C. Reservá tu turno online.">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -46,7 +46,7 @@
   <header class="fixed top-4 left-0 right-0 z-50 px-4 sm:px-8 max-w-7xl mx-auto">
     <nav class="bg-white/85 backdrop-blur-md border border-border-soft/70 shadow-sm rounded-full py-3 px-6 flex items-center justify-between transition-all duration-300">
       <a href="#" class="flex items-center gap-2">
-        <img src="logo/logo.png" alt="Baby Spa Paraguay - Lic. Rocío Vicente" class="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 hover:scale-105">
+        <img src="logo/logo.png" alt="Baby Spa Paraguay" class="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 hover:scale-105">
       </a>
 
       <!-- Links de navegación escritorio -->
@@ -92,7 +92,7 @@
           </h1>
 
           <p class="text-lg sm:text-xl text-text-muted mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-            Un espacio cálido y seguro guiado por la <strong class="text-text-main font-semibold">Lic. Rocío Vicente</strong>. Agua tratada y purificada a 36°C para relajar a tu pequeño, aliviar cólicos y potenciar su desarrollo en una experiencia inolvidable.
+            Un espacio cálido y seguro acompañado por un equipo especializado. Agua tratada y purificada a 36°C para relajar a tu pequeño, aliviar cólicos y potenciar su desarrollo en una experiencia inolvidable.
           </p>
 
           <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
@@ -198,9 +198,9 @@
         </div>
 
         <div class="p-4 rounded-2xl bg-cream-base/60 border border-border-soft/60">
-          <div class="font-heading font-bold text-3xl sm:text-4xl text-accent-pink mb-1">Lic. Rocío</div>
-          <div class="text-xs sm:text-sm font-semibold text-text-main">Vicente</div>
-          <div class="text-[11px] text-text-muted">Especialista en desarrollo infantil</div>
+          <div class="font-heading font-bold text-3xl sm:text-4xl text-accent-pink mb-1">Equipo de cuidado</div>
+          <div class="text-xs sm:text-sm font-semibold text-text-main">infantil</div>
+          <div class="text-[11px] text-text-muted">Atención especializada</div>
         </div>
 
         <div class="p-4 rounded-2xl bg-cream-base/60 border border-border-soft/60">
@@ -707,7 +707,7 @@
           <div>
             <div class="flex text-amber-400 text-sm mb-3">★★★★★</div>
             <p class="text-sm text-text-main leading-relaxed mb-4">
-              "Llevamos a Benicio a los 3 meses porque sufría muchos cólicos por la tarde. Después de la sesión de hidroterapia durmió como nunca y la Lic. Rocío nos enseñó masajes que nos cambiaron las noches."
+              "Llevamos a Benicio a los 3 meses porque sufría muchos cólicos por la tarde. Después de la sesión de hidroterapia durmió como nunca y el equipo nos enseñó masajes que nos cambiaron las noches."
             </p>
           </div>
           <div class="pt-4 border-t border-border-soft flex items-center gap-3">
@@ -816,7 +816,7 @@
             <span class="transition group-open:rotate-180 text-accent-pink font-bold">▼</span>
           </summary>
           <p class="text-xs sm:text-sm text-text-muted mt-3 leading-relaxed">
-            ¡Totalmente! La presencia y voz de mamá y papá son fundamentales para la tranquilidad del bebé. Participan activamente guiados por la Lic. Rocío Vicente.
+            ¡Totalmente! La presencia y voz de mamá y papá son fundamentales para la tranquilidad del bebé. Participan activamente con la orientación de nuestro equipo.
           </p>
         </details>
 
@@ -913,7 +913,7 @@
         Regalale a tu bebé un momento de pura serenidad
       </h2>
       <p class="text-sm sm:text-base text-text-muted mb-8 max-w-xl mx-auto">
-        Los primeros meses pasan volando. Asegurá un turno con la Lic. Rocío Vicente y viví una experiencia de cuidado que recordarán siempre.
+        Los primeros meses pasan volando. Asegurá un turno para tu bebé y viví una experiencia de cuidado que recordarán siempre.
       </p>
       <a href="#reservas" class="bg-accent-pink hover:bg-accent-hover text-white font-heading font-bold text-base py-4 px-9 rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 inline-flex items-center gap-2">
         <span>Reservar turno online ahora</span>
@@ -926,7 +926,7 @@
   <footer class="bg-cream-base border-t border-border-soft py-10 text-xs text-text-muted">
     <div class="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <img src="logo/logo.png" alt="Baby Spa Paraguay - Lic. Rocío Vicente" class="h-9 w-auto object-contain">
+        <img src="logo/logo.png" alt="Baby Spa Paraguay" class="h-9 w-auto object-contain">
       </div>
       <div>
         <span data-business-address>Atención con turno previo en Asunción, Paraguay.</span>
@@ -1021,7 +1021,7 @@
       <div class="mt-6 pt-4 border-t border-border-soft text-center">
         <p class="text-xs text-text-muted mb-3">¿Tenés alguna consulta o querés modificar tu turno?</p>
         <a id="my-turns-whatsapp-link" href="https://wa.me/595981123456?text=Hola%2C%20quisiera%20consultar%20sobre%20mi%20turno%20en%20Baby%20Spa%20Paraguay" target="_blank" class="inline-flex items-center gap-2 bg-[#25D366] text-white text-xs font-bold py-2.5 px-5 rounded-full hover:bg-[#20ba59] transition-colors">
-          <span>Escribir a Lic. Rocío por WhatsApp</span>
+          <span>Escribir al equipo por WhatsApp</span>
           <span>📲</span>
         </a>
       </div>
