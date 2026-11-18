@@ -245,6 +245,7 @@ function showSettingsStatus(message, success = false) {
 function populateSettingsForm(settings) {
   document.getElementById('settings-business-name').value = settings.businessName;
   document.getElementById('settings-address').value = settings.address;
+  document.getElementById('settings-google-maps-url').value = settings.googleMapsUrl || '';
   document.getElementById('settings-whatsapp').value = `+${settings.whatsapp}`;
   document.getElementById('settings-instagram').value = settings.instagram ? `@${settings.instagram}` : '';
   document.getElementById('settings-booking-message').value = settings.bookingMessage;
@@ -287,6 +288,7 @@ async function saveAdminSettings(section, button) {
   if (section === 'business') {
     payload.businessName = document.getElementById('settings-business-name').value;
     payload.address = document.getElementById('settings-address').value;
+    payload.googleMapsUrl = document.getElementById('settings-google-maps-url').value;
     payload.whatsapp = document.getElementById('settings-whatsapp').value;
     payload.instagram = document.getElementById('settings-instagram').value;
   } else {

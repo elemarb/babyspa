@@ -12,4 +12,4 @@ Los archivos `.php` se mantienen para el desarrollo en servidores PHP, pero Verc
 
 El panel en línea está en `/admin/` y usa Supabase Auth. Creá la cuenta del administrador en Supabase → Authentication → Users y configurá en Vercel `ADMIN_EMAIL` con el correo autorizado, `SUPABASE_URL` y `SUPABASE_PUBLISHABLE_KEY` (también se acepta `SUPABASE_ANON_KEY`). El panel no permite registrarse y sus funciones de reservas verifican la sesión y el correo autorizado en el servidor.
 
-La sección Configuración guarda el perfil público y el mensaje de confirmación en PostgreSQL. En una base existente, ejecutá el `schema.sql` actualizado para crear e inicializar `business_settings`. Los mensajes se preparan en un enlace de WhatsApp; no se envían automáticamente.
+La sección Configuración guarda el perfil público, la dirección y el enlace compartido de Google Maps, además del mensaje de confirmación, en PostgreSQL. En una base existente, ejecutá el `schema.sql` actualizado para crear `business_settings` y agregar sus columnas nuevas. Los mensajes se preparan en un enlace de WhatsApp; no se envían automáticamente.

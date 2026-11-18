@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS public.business_settings (
     id SMALLINT PRIMARY KEY CHECK (id = 1),
     business_name VARCHAR(100) NOT NULL DEFAULT 'Baby Spa Paraguay',
     address VARCHAR(250) NOT NULL DEFAULT 'Barrio Herrera / Villa Morra, Asunción, Paraguay',
+    google_maps_url VARCHAR(1000) NOT NULL DEFAULT '',
     whatsapp VARCHAR(15) NOT NULL DEFAULT '595981123456',
     instagram VARCHAR(30) NOT NULL DEFAULT 'babyspaparaguay',
     booking_message TEXT NOT NULL DEFAULT $message$¡Hola! Acabo de reservar un turno en [negocio]:
@@ -45,6 +46,9 @@ Servicio: [servicio] ([minutos] minutos)
 Fecha: [fecha] a las [hora] hs. Mamá/Papá: [tutor]$message$,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE public.business_settings
+ADD COLUMN IF NOT EXISTS google_maps_url VARCHAR(1000) NOT NULL DEFAULT '';
 
 INSERT INTO public.business_settings (id)
 VALUES (1)

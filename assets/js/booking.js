@@ -73,9 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const mapsLink = document.getElementById('business-maps-link');
     if (mapsLink) {
       const address = (settings.address || '').trim();
-      mapsLink.href = address
+      mapsLink.href = settings.googleMapsUrl || (address
         ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
-        : 'https://maps.google.com';
+        : 'https://maps.google.com');
     }
 
     const instagramLink = document.getElementById('business-instagram-link');
