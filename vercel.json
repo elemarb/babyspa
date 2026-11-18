@@ -10,6 +10,10 @@
       "destination": "/api/horarios"
     },
     {
+      "source": "/api/servicios.php",
+      "destination": "/api/servicios"
+    },
+    {
       "source": "/api/reservar.php",
       "destination": "/api/reservar"
     }

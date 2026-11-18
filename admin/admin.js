@@ -20,11 +20,17 @@ const businessSettingsForm = document.getElementById('settings-business-form');
 const messagesSettingsForm = document.getElementById('settings-messages-form');
 const saveBusinessSettingsButton = document.getElementById('save-business-settings-btn');
 const saveMessageSettingsButton = document.getElementById('save-message-settings-btn');
+const servicesList = document.getElementById('services-list');
+const servicesMessage = document.getElementById('services-message');
+const serviceForm = document.getElementById('service-form');
+const saveServiceButton = document.getElementById('save-service-btn');
 
 let currentPeriod = 'day';
 let businessSettings = null;
 let settingsLoaded = false;
 let isLoadingSettings = false;
+let servicesLoaded = false;
+let isLoadingServices = false;
 
 let supabaseConfig;
 let session = readSession();
@@ -171,18 +177,27 @@ function setAdminView(view) {
 }
 
 function setSettingsTab(tab) {
-  const showMessages = tab === 'messages';
-  businessSettingsForm.classList.toggle('hidden', showMessages);
-  messagesSettingsForm.classList.toggle('hidden', !showMessages);
-  document.getElementById('settings-business-tab').setAttribute('aria-pressed', String(!showMessages));
-  document.getElementById('settings-messages-tab').setAttribute('aria-pressed', String(showMessages));
-  document.getElementById('settings-business-tab').classList.toggle('bg-[#F09CB0]', !showMessages);
-  document.getElementById('settings-business-tab').classList.toggle('text-white', !showMessages);
-  document.getElementById('settings-business-tab').classList.toggle('text-[#5B4B47]', showMessages);
-  document.getElementById('settings-messages-tab').classList.toggle('bg-[#F09CB0]', showMessages);
-  document.getElementById('settings-messages-tab').classList.toggle('text-white', showMessages);
-  document.getElementById('settings-messages-tab').classList.toggle('text-[#5B4B47]', !showMessages);
+  const tabs = {
+    business: document.getElementById('settings-business-tab'),
+    messages: document.getElementById('settings-messages-tab'),
+    services: document.getElementById('settings-services-tab')
+  };
+  const panels = {
+    business: businessSettingsForm,
+    messages: messagesSettingsForm,
+    services: document.getElementById('settings-services-panel')
+  };
+
+  Object.entries(tabs).forEach(([name, button]) => {
+    const selected = name === tab;
+    button.setAttribute('aria-pressed', String(selected));
+    button.classList.toggle('bg-[#F09CB0]', selected);
+    button.classList.toggle('text-white', selected);
+    button.classList.toggle('text-[#5B4B47]', !selected);
+    panels[name].classList.toggle('hidden', !selected);
+  });
   hideMessage(settingsMessage);
+  if (tab === 'services' && !servicesLoaded) loadAdminServices();
 }
 
 async function loadConfig() {
@@ -319,6 +334,173 @@ async function saveAdminSettings(section, button) {
   } finally {
     button.disabled = !settingsLoaded;
     button.textContent = originalLabel;
+  }
+}
+
+function showServicesStatus(message, success = false) {
+  servicesMessage.textContent = message;
+  servicesMessage.className = `rounded-2xl p-3 text-sm ${success ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`;
+}
+
+function openServiceForm(service = null) {
+  serviceForm.reset();
+  document.getElementById('service-code').value = service ? service.codigo : '';
+  document.getElementById('service-name').value = service ? service.nombre : '';
+  document.getElementById('service-duration').value = service ? service.duracionMinutos : '';
+  document.getElementById('service-price').value = service ? service.precio : '';
+  document.getElementById('service-active').checked = service ? service.activo : true;
+  document.getElementById('service-form-title').textContent = service ? 'Editar servicio' : 'Agregar servicio';
+  saveServiceButton.textContent = service ? 'Guardar cambios' : 'Guardar servicio';
+  serviceForm.classList.remove('hidden');
+  document.getElementById('service-name').focus();
+}
+
+function closeServiceForm() {
+  serviceForm.reset();
+  serviceForm.classList.add('hidden');
+}
+
+function renderServices(services) {
+  servicesList.replaceChildren();
+  if (!services.length) {
+    const empty = document.createElement('p');
+    empty.className = 'text-sm text-[#8A7A75]';
+    empty.textContent = 'Todavía no hay servicios. Agregá el primero para ofrecerlo en el frontend.';
+    servicesList.appendChild(empty);
+    return;
+  }
+
+  services.forEach((service) => {
+    const card = document.createElement('article');
+    card.className = 'rounded-3xl border border-[#EFE1D8] bg-[#FFF8F0] p-5';
+
+    const heading = document.createElement('div');
+    heading.className = 'flex flex-wrap items-start justify-between gap-3';
+    const name = document.createElement('h3');
+    name.className = 'font-heading text-lg font-bold text-[#5B4B47]';
+    name.textContent = service.nombre;
+    const status = document.createElement('span');
+    status.className = `rounded-full px-3 py-1 text-xs font-bold ${service.activo ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'}`;
+    status.textContent = service.activo ? 'Activo' : 'Inactivo';
+    heading.append(name, status);
+
+    const details = document.createElement('p');
+    details.className = 'mt-3 text-sm text-[#8A7A75]';
+    details.textContent = `${service.duracionMinutos} min · ₲ ${Number(service.precio).toLocaleString('es-PY')}`;
+
+    const usage = document.createElement('p');
+    usage.className = 'mt-1 text-xs text-[#8A7A75]';
+    usage.textContent = `${service.reservas} reserva(s) asociada(s)`;
+
+    const actions = document.createElement('div');
+    actions.className = 'mt-4 flex flex-wrap gap-2';
+    actions.appendChild(createActionButton(
+      'Editar',
+      'rounded-full border border-[#EFE1D8] bg-white px-4 py-2 text-xs font-bold text-[#5B4B47] hover:bg-[#FADCE2]',
+      () => openServiceForm(service)
+    ));
+    actions.appendChild(createActionButton(
+      service.activo ? 'Desactivar' : 'Activar',
+      'rounded-full border border-[#EFE1D8] bg-white px-4 py-2 text-xs font-bold text-[#5B4B47] hover:bg-[#FADCE2]',
+      (event) => saveServiceChanges({ ...service, activo: !service.activo }, event.currentTarget)
+    ));
+    const deleteButton = createActionButton(
+      'Eliminar',
+      'rounded-full bg-rose-50 px-4 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50',
+      () => deleteService(service)
+    );
+    deleteButton.disabled = service.reservas > 0;
+    if (deleteButton.disabled) deleteButton.title = 'No se puede eliminar porque existen reservas asociadas.';
+    actions.appendChild(deleteButton);
+
+    card.append(heading, details, usage, actions);
+    servicesList.appendChild(card);
+  });
+}
+
+async function loadAdminServices() {
+  if (isLoadingServices) return;
+  isLoadingServices = true;
+  hideMessage(servicesMessage);
+  servicesList.replaceChildren();
+  const loading = document.createElement('p');
+  loading.className = 'text-sm text-[#8A7A75]';
+  loading.textContent = 'Cargando servicios…';
+  servicesList.appendChild(loading);
+
+  try {
+    const response = await authorizedFetch('/api/admin/servicios');
+    const data = await readResponse(response);
+    renderServices(data.servicios);
+    servicesLoaded = true;
+  } catch (error) {
+    if (error.status === 401 || error.status === 403) {
+      clearSession();
+      showLogin(error.message);
+    } else {
+      showServicesStatus(error.message);
+      servicesList.replaceChildren();
+    }
+  } finally {
+    isLoadingServices = false;
+  }
+}
+
+async function saveServiceChanges(service, formButton = null) {
+  const isNew = !service.codigo;
+  const button = formButton || document.getElementById('service-form').querySelector('button[type="submit"]');
+  const originalLabel = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Guardando…';
+
+  try {
+    const response = await authorizedFetch('/api/admin/servicios', {
+      method: isNew ? 'POST' : 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(service)
+    });
+    await readResponse(response);
+    if (button === saveServiceButton) closeServiceForm();
+    servicesLoaded = false;
+    await loadAdminServices();
+    if (servicesLoaded) showServicesStatus('El servicio se guardó correctamente.', true);
+  } catch (error) {
+    if (error.status === 401 || error.status === 403) {
+      clearSession();
+      showLogin(error.message);
+      return;
+    }
+    showServicesStatus(error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = originalLabel;
+  }
+}
+
+async function deleteService(service) {
+  if (!window.confirm(`¿Querés eliminar el servicio "${service.nombre}"?`)) return;
+  try {
+    const response = await authorizedFetch('/api/admin/servicios', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ codigo: service.codigo })
+    });
+    await readResponse(response);
+    servicesLoaded = false;
+    await loadAdminServices();
+    if (servicesLoaded) showServicesStatus('El servicio se eliminó correctamente.', true);
+  } catch (error) {
+    if (error.status === 401 || error.status === 403) {
+      clearSession();
+      showLogin(error.message);
+      return;
+    }
+    showServicesStatus(error.message);
+    if (error.status === 409) {
+      servicesLoaded = false;
+      await loadAdminServices();
+      showServicesStatus(error.message);
+    }
   }
 }
 
@@ -640,7 +822,24 @@ document.getElementById('nav-reservations').addEventListener('click', () => setA
 document.getElementById('nav-settings').addEventListener('click', () => setAdminView('settings'));
 document.getElementById('settings-business-tab').addEventListener('click', () => setSettingsTab('business'));
 document.getElementById('settings-messages-tab').addEventListener('click', () => setSettingsTab('messages'));
+document.getElementById('settings-services-tab').addEventListener('click', () => setSettingsTab('services'));
 settingsReloadButton.addEventListener('click', loadAdminSettings);
+document.getElementById('reload-services-btn').addEventListener('click', () => {
+  servicesLoaded = false;
+  loadAdminServices();
+});
+document.getElementById('add-service-btn').addEventListener('click', () => openServiceForm());
+document.getElementById('cancel-service-btn').addEventListener('click', closeServiceForm);
+serviceForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  saveServiceChanges({
+    codigo: document.getElementById('service-code').value,
+    nombre: document.getElementById('service-name').value.trim(),
+    duracionMinutos: Number(document.getElementById('service-duration').value),
+    precio: Number(document.getElementById('service-price').value),
+    activo: document.getElementById('service-active').checked
+  }, saveServiceButton);
+});
 businessSettingsForm.addEventListener('submit', (event) => {
   event.preventDefault();
   saveAdminSettings('business', saveBusinessSettingsButton);

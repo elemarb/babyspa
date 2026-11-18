@@ -1,5 +1,6 @@
 const { randomBytes } = require('node:crypto');
-const { baseHours, getAsuncionDateTime, getPool, isValidDate, services } = require('../lib/database');
+const { baseHours, getAsuncionDateTime, getPool, isValidDate } = require('../lib/database');
+const { getActiveService } = require('../lib/services');
 
 function normalizeText(value) {
   return typeof value === 'string' ? value.trim() : '';
@@ -28,7 +29,7 @@ module.exports = async function handler(req, res) {
   const notas = normalizeText(data.notas);
   const errors = {};
 
-  if (!services[servicio]) errors.servicio = 'Por favor seleccioná un servicio.';
+  if (!servicio) errors.servicio = 'Por favor seleccioná un servicio.';
   if (!isValidDate(fecha)) errors.fecha = 'La fecha es obligatoria y debe ser válida.';
   if (!baseHours.includes(hora)) errors.hora = 'Por favor elegí un horario disponible.';
   if (!bebeNombre) errors.bebe_nombre = 'El nombre de tu bebé es necesario.';
@@ -55,12 +56,23 @@ module.exports = async function handler(req, res) {
   }
 
   const codigo = `BSP-${hoy.slice(0, 4)}-${randomBytes(3).toString('hex').toUpperCase()}`;
+  let servicioNombre;
 
   try {
     const db = getPool();
+    const service = await getActiveService(servicio);
+    if (!service) {
+      return res.status(422).json({
+        success: false,
+        errors: { servicio: 'El servicio seleccionado ya no está disponible.' },
+        error: 'El servicio seleccionado ya no está disponible.'
+      });
+    }
+    servicioNombre = `${service.nombre} (${service.duracionMinutos} min)`;
+
     const existing = await db.query(
-      'SELECT 1 FROM reservas WHERE fecha = $1 AND hora = $2 AND estado = $3 LIMIT 1',
-      [fecha, hora, 'confirmada']
+      "SELECT 1 FROM reservas WHERE fecha = $1 AND hora = $2 AND estado <> 'cancelada' LIMIT 1",
+      [fecha, hora]
     );
     if (existing.rowCount) {
       return res.status(409).json({
@@ -73,13 +85,20 @@ module.exports = async function handler(req, res) {
       `INSERT INTO reservas
         (codigo, servicio, servicio_nombre, fecha, hora, bebe_nombre, bebe_edad, tutor_nombre, telefono, notas, estado)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'confirmada')`,
-      [codigo, servicio, services[servicio], fecha, hora, bebeNombre, edad, tutorNombre, telefono, notas]
+      [codigo, servicio, servicioNombre, fecha, hora, bebeNombre, edad, tutorNombre, telefono, notas]
     );
   } catch (error) {
     if (error.code === '23505') {
       return res.status(409).json({
         success: false,
         error: `Lo sentimos, el horario de las ${hora} hs para el día ${fecha} ya fue reservado. Por favor seleccioná otro horario disponible.`
+      });
+    }
+    if (error.code === '23503') {
+      return res.status(422).json({
+        success: false,
+        errors: { servicio: 'El servicio seleccionado ya no está disponible.' },
+        error: 'El servicio seleccionado ya no está disponible.'
       });
     }
 
@@ -96,7 +115,7 @@ module.exports = async function handler(req, res) {
     mensaje: '¡Reserva confirmada con éxito!',
     reserva: {
       codigo,
-      servicio: services[servicio],
+      servicio: servicioNombre,
       fecha,
       hora,
       bebe_nombre: bebeNombre,

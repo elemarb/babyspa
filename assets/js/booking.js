@@ -8,18 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Estado de la reserva en curso
   const state = {
     servicio: 'hidroterapia',
-    servicioNombre: 'Hidroterapia Infantil (30 min)',
+    servicioNombre: '',
     fecha: '',
     hora: '',
     isLoadingSlots: false
   };
 
-  const servicesInfo = {
-    'hidroterapia': 'Hidroterapia Infantil (30 min)',
-    'masaje': 'Masaje Infantil & Relajación (35 min)',
-    'estimulacion': 'Estimulación Temprana Acuática (40 min)',
-    'post-vacuna': 'Spa Post-Vacuna & Alivio (30 min)'
-  };
+  const servicesInfo = new Map();
 
   const defaultBookingMessage = [
     '¡Hola! Acabo de reservar un turno en [negocio]:',
@@ -37,7 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Elementos del DOM
-  const serviceButtons = document.querySelectorAll('.service-tab-btn');
+  const serviceButtonsContainer = document.getElementById('service-buttons-container');
+  const serviceCardsGrid = document.getElementById('service-cards-grid');
   const daysContainer = document.getElementById('days-container');
   const slotsContainer = document.getElementById('slots-container');
   const slotsEmpty = document.getElementById('slots-empty');
@@ -119,6 +115,119 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const publicSettingsReady = loadPublicBusinessSettings();
+
+  function formatServicePrice(price) {
+    return `₲ ${Number(price).toLocaleString('es-PY')}`;
+  }
+
+  function appendGeneratedServiceCard(service) {
+    const card = document.createElement('article');
+    card.dataset.serviceCard = service.codigo;
+    card.dataset.generatedServiceCard = 'true';
+    card.className = 'bg-white border border-border-soft rounded-3xl p-6 shadow-sm flex flex-col justify-between';
+
+    const details = document.createElement('div');
+    const icon = document.createElement('div');
+    icon.className = 'w-12 h-12 rounded-2xl bg-blue-soft flex items-center justify-center text-2xl mb-4';
+    icon.textContent = '🫧';
+    const name = document.createElement('h3');
+    name.className = 'font-heading font-bold text-xl text-text-main mb-2';
+    name.textContent = service.nombre;
+    const duration = document.createElement('p');
+    duration.className = 'text-xs text-text-muted';
+    duration.textContent = `Duración: ${service.duracionMinutos} minutos`;
+    details.append(icon, name, duration);
+
+    const footer = document.createElement('div');
+    footer.className = 'pt-4 mt-6 border-t border-border-soft';
+    const price = document.createElement('p');
+    price.className = 'font-heading font-bold text-xl text-text-main mb-4';
+    price.textContent = formatServicePrice(service.precio);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'w-full bg-pink-soft hover:bg-accent-pink hover:text-white text-text-main text-xs font-bold py-3 px-4 rounded-2xl transition-colors duration-300';
+    button.textContent = 'Reservar este servicio';
+    button.addEventListener('click', () => window.setBookingService(service.codigo));
+    footer.append(price, button);
+    card.append(details, footer);
+    serviceCardsGrid.appendChild(card);
+  }
+
+  function renderPublicServices(services) {
+    servicesInfo.clear();
+    serviceButtonsContainer.replaceChildren();
+    serviceCardsGrid.querySelectorAll('[data-generated-service-card]').forEach((card) => card.remove());
+
+    services.forEach((service) => {
+      servicesInfo.set(service.codigo, service);
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.servicio = service.codigo;
+      button.setAttribute('aria-pressed', 'false');
+      button.className = 'service-tab-btn bg-white text-text-main border border-border-soft hover:border-accent-pink py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-semibold text-center transition-all';
+      button.textContent = service.nombre;
+      button.addEventListener('click', () => setService(service.codigo));
+      serviceButtonsContainer.appendChild(button);
+    });
+
+    const visibleCodes = new Set(services.map((service) => service.codigo));
+    serviceCardsGrid.querySelectorAll('[data-service-card]').forEach((card) => {
+      const service = servicesInfo.get(card.dataset.serviceCard);
+      card.classList.toggle('hidden', !service);
+      if (!service) return;
+
+      const name = card.querySelector('[data-service-name]');
+      const duration = card.querySelector('[data-service-duration]');
+      const price = card.querySelector('[data-service-price]');
+      if (name) name.textContent = service.nombre;
+      if (duration) duration.textContent = `${service.duracionMinutos} minutos`;
+      if (price) price.textContent = formatServicePrice(service.precio);
+    });
+
+    services.forEach((service) => {
+      const cardExists = Array.from(serviceCardsGrid.querySelectorAll('[data-service-card]'))
+        .some((card) => card.dataset.serviceCard === service.codigo);
+      if (!cardExists) {
+        appendGeneratedServiceCard(service);
+      }
+    });
+
+    const selectedCode = visibleCodes.has(state.servicio) ? state.servicio : services[0]?.codigo;
+    if (selectedCode) {
+      setService(selectedCode);
+    } else {
+      state.servicio = '';
+      state.servicioNombre = '';
+      submitBtn.disabled = true;
+      const empty = document.createElement('p');
+      empty.className = 'col-span-full text-sm text-text-muted';
+      empty.textContent = 'No hay servicios disponibles para reservar en este momento.';
+      serviceButtonsContainer.appendChild(empty);
+      serviceCardsGrid.querySelectorAll('[data-service-card]').forEach((card) => card.classList.add('hidden'));
+    }
+  }
+
+  async function loadPublicServices() {
+    try {
+      const response = await fetch('api/servicios.php');
+      const data = await response.json();
+      if (!response.ok || !Array.isArray(data.servicios)) {
+        throw new Error(data.error || 'No se pudieron cargar los servicios.');
+      }
+      renderPublicServices(data.servicios);
+    } catch (error) {
+      console.error('No se pudieron cargar los servicios:', error.message);
+      serviceButtonsContainer.replaceChildren();
+      const message = document.createElement('p');
+      message.className = 'col-span-full text-sm text-rose-700';
+      message.textContent = 'No se pudieron cargar los servicios. Intentá nuevamente más tarde.';
+      serviceButtonsContainer.appendChild(message);
+      serviceCardsGrid.querySelectorAll('[data-service-card]').forEach((card) => card.classList.add('hidden'));
+      submitBtn.disabled = true;
+    }
+  }
+
+  loadPublicServices();
 
   // =========================================================================
   // GESTIÓN DE CLIENTE SIN LOGIN (Mecanismo Silla Libre: Cookies + LocalStorage)
@@ -388,19 +497,13 @@ document.addEventListener('DOMContentLoaded', () => {
       submitBtn.disabled = false;
       submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
     } else {
-      submitBtn.disabled = false;
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
     }
   }
 
-  serviceButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const servicio = btn.dataset.servicio;
-      setService(servicio);
-    });
-  });
-
   window.setBookingService = function(servicioKey) {
-    setService(servicioKey);
+    if (!setService(servicioKey)) return;
     const reservasSection = document.getElementById('reservas');
     if (reservasSection) {
       reservasSection.scrollIntoView({ behavior: 'smooth' });
@@ -408,23 +511,30 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   function setService(servicioKey) {
+    const service = servicesInfo.get(servicioKey);
+    if (!service) return false;
+
     state.servicio = servicioKey;
-    state.servicioNombre = servicesInfo[servicioKey] || 'Servicio de Spa';
+    state.servicioNombre = `${service.nombre} (${service.duracionMinutos} min)`;
     state.hora = '';
 
-    serviceButtons.forEach(b => {
+    serviceButtonsContainer.querySelectorAll('.service-tab-btn').forEach((b) => {
       if (b.dataset.servicio === servicioKey) {
         b.classList.remove('bg-white', 'text-[#5B4B47]', 'border-[#EFE1D8]');
         b.classList.add('bg-[#F09CB0]', 'text-white', 'border-[#e37f98]', 'shadow-sm');
+        b.setAttribute('aria-pressed', 'true');
       } else {
         b.classList.remove('bg-[#F09CB0]', 'text-white', 'border-[#e37f98]', 'shadow-sm');
         b.classList.add('bg-white', 'text-[#5B4B47]', 'border-[#EFE1D8]');
+        b.setAttribute('aria-pressed', 'false');
       }
     });
 
     if (state.fecha) {
       fetchSlots();
     }
+    updateSubmitButtonState();
+    return true;
   }
 
   function validateForm(showInlineErrors = true) {

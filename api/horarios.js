@@ -1,4 +1,5 @@
-const { baseHours, getAsuncionDateTime, getPool, isValidDate, services } = require('../lib/database');
+const { baseHours, getAsuncionDateTime, getPool, isValidDate } = require('../lib/database');
+const { getActiveService } = require('../lib/services');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -12,20 +13,21 @@ module.exports = async function handler(req, res) {
   const servicio = typeof req.query.servicio === 'string' ? req.query.servicio.trim() : 'hidroterapia';
   const fecha = typeof req.query.fecha === 'string' ? req.query.fecha.trim() : getAsuncionDateTime().date;
 
-  if (!services[servicio]) {
-    return res.status(400).json({ error: 'Servicio inválido.' });
-  }
   if (!isValidDate(fecha)) {
     return res.status(400).json({ error: 'Formato de fecha inválido. Usar YYYY-MM-DD.' });
   }
 
-  if (new Date(`${fecha}T00:00:00.000Z`).getUTCDay() === 0) {
-    return res.status(200).json({ fecha, servicio, horarios: [] });
-  }
-
   try {
+    if (!await getActiveService(servicio)) {
+      return res.status(400).json({ error: 'El servicio no está disponible.' });
+    }
+
+    if (new Date(`${fecha}T00:00:00.000Z`).getUTCDay() === 0) {
+      return res.status(200).json({ fecha, servicio, horarios: [] });
+    }
+
     const { rows } = await getPool().query(
-      "SELECT hora FROM reservas WHERE fecha = $1 AND estado = 'confirmada'",
+      "SELECT hora FROM reservas WHERE fecha = $1 AND estado <> 'cancelada'",
       [fecha]
     );
     const ocupados = new Set(rows.map(({ hora }) => String(hora).slice(0, 5)));

@@ -248,10 +248,10 @@
         </p>
       </div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div id="service-cards-grid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
 
         <!-- Servicio 1: Hidroterapia Infantil -->
-        <div class="bg-white border border-border-soft rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
+        <div data-service-card="hidroterapia" class="bg-white border border-border-soft rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
           <div>
             <div class="w-12 h-12 rounded-2xl bg-blue-soft flex items-center justify-center text-2xl mb-4">
               💧
@@ -259,19 +259,19 @@
             <div class="inline-block bg-blue-soft/60 text-[#2f4955] text-[11px] font-bold py-1 px-2.5 rounded-full mb-2">
               15 días a 12 meses
             </div>
-            <h3 class="font-heading font-bold text-xl text-text-main mb-2">Hidroterapia Infantil</h3>
+            <h3 data-service-name class="font-heading font-bold text-xl text-text-main mb-2">Hidroterapia Infantil</h3>
             <p class="text-xs text-text-muted leading-relaxed mb-4">
               Flotación libre guiada en agua templada. Estimula el reflejo natatorio natural, alivia cólicos y favorece un descanso profundo.
             </p>
             <div class="space-y-1.5 text-xs text-text-muted mb-6">
-              <div class="flex items-center gap-1.5"><span>⏱</span> <strong>Duración:</strong> 30 minutos</div>
+              <div class="flex items-center gap-1.5"><span>⏱</span> <strong>Duración:</strong> <span data-service-duration>30 minutos</span></div>
               <div class="flex items-center gap-1.5"><span>✨</span> <strong>Beneficio:</strong> Relajación muscular total</div>
             </div>
           </div>
           <div class="pt-4 border-t border-border-soft">
             <div class="flex items-baseline justify-between mb-4">
               <span class="text-xs text-text-muted">Inversión:</span>
-              <span class="font-heading font-bold text-xl text-text-main">₲ 160.000</span>
+              <span data-service-price class="font-heading font-bold text-xl text-text-main">₲ 160.000</span>
             </div>
             <button onclick="setBookingService('hidroterapia')" class="w-full bg-pink-soft hover:bg-accent-pink hover:text-white text-text-main text-xs font-bold py-3 px-4 rounded-2xl transition-colors duration-300">
               Reservar este servicio
@@ -280,7 +280,7 @@
         </div>
 
         <!-- Servicio 2: Masaje Infantil -->
-        <div class="bg-white border border-border-soft rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
+        <div data-service-card="masaje" class="bg-white border border-border-soft rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
           <div>
             <div class="w-12 h-12 rounded-2xl bg-pink-soft flex items-center justify-center text-2xl mb-4">
               🌸
@@ -288,19 +288,19 @@
             <div class="inline-block bg-pink-soft text-text-main text-[11px] font-bold py-1 px-2.5 rounded-full mb-2">
               1 mes a 2 años
             </div>
-            <h3 class="font-heading font-bold text-xl text-text-main mb-2">Masaje Infantil & Relajación</h3>
+            <h3 data-service-name class="font-heading font-bold text-xl text-text-main mb-2">Masaje Infantil & Relajación</h3>
             <p class="text-xs text-text-muted leading-relaxed mb-4">
               Técnicas suaves de tacto nutritivo con aceites hipoalergénicos. Alivia tensiones musculares, gases y fortalece el apego familiar.
             </p>
             <div class="space-y-1.5 text-xs text-text-muted mb-6">
-              <div class="flex items-center gap-1.5"><span>⏱</span> <strong>Duración:</strong> 35 minutos</div>
+              <div class="flex items-center gap-1.5"><span>⏱</span> <strong>Duración:</strong> <span data-service-duration>35 minutos</span></div>
               <div class="flex items-center gap-1.5"><span>✨</span> <strong>Beneficio:</strong> Confort digestivo y vínculo</div>
             </div>
           </div>
           <div class="pt-4 border-t border-border-soft">
             <div class="flex items-baseline justify-between mb-4">
               <span class="text-xs text-text-muted">Inversión:</span>
-              <span class="font-heading font-bold text-xl text-text-main">₲ 145.000</span>
+              <span data-service-price class="font-heading font-bold text-xl text-text-main">₲ 145.000</span>
             </div>
             <button onclick="setBookingService('masaje')" class="w-full bg-pink-soft hover:bg-accent-pink hover:text-white text-text-main text-xs font-bold py-3 px-4 rounded-2xl transition-colors duration-300">
               Reservar este servicio
@@ -309,7 +309,7 @@
         </div>
 
         <!-- Servicio 3: Estimulación Temprana Acuática -->
-        <div class="bg-white border border-border-soft rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
+        <div data-service-card="estimulacion" class="bg-white border border-border-soft rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
           <div>
             <div class="w-12 h-12 rounded-2xl bg-blue-soft flex items-center justify-center text-2xl mb-4">
               ⭐
@@ -317,19 +317,19 @@
             <div class="inline-block bg-blue-soft/60 text-[#2f4955] text-[11px] font-bold py-1 px-2.5 rounded-full mb-2">
               3 meses a 3 años
             </div>
-            <h3 class="font-heading font-bold text-xl text-text-main mb-2">Estimulación Temprana</h3>
+            <h3 data-service-name class="font-heading font-bold text-xl text-text-main mb-2">Estimulación Temprana</h3>
             <p class="text-xs text-text-muted leading-relaxed mb-4">
               Ejercicios psicomotrices acuáticos lúdicos guiados por profesional. Mejora la coordinación, tono muscular y confianza en el medio acuático.
             </p>
             <div class="space-y-1.5 text-xs text-text-muted mb-6">
-              <div class="flex items-center gap-1.5"><span>⏱</span> <strong>Duración:</strong> 40 minutos</div>
+              <div class="flex items-center gap-1.5"><span>⏱</span> <strong>Duración:</strong> <span data-service-duration>40 minutos</span></div>
               <div class="flex items-center gap-1.5"><span>✨</span> <strong>Beneficio:</strong> Desarrollo psicomotor</div>
             </div>
           </div>
           <div class="pt-4 border-t border-border-soft">
             <div class="flex items-baseline justify-between mb-4">
               <span class="text-xs text-text-muted">Inversión:</span>
-              <span class="font-heading font-bold text-xl text-text-main">₲ 180.000</span>
+              <span data-service-price class="font-heading font-bold text-xl text-text-main">₲ 180.000</span>
             </div>
             <button onclick="setBookingService('estimulacion')" class="w-full bg-pink-soft hover:bg-accent-pink hover:text-white text-text-main text-xs font-bold py-3 px-4 rounded-2xl transition-colors duration-300">
               Reservar este servicio
@@ -338,7 +338,7 @@
         </div>
 
         <!-- Servicio 4: Spa Post-Vacuna -->
-        <div class="bg-white border border-border-soft rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
+        <div data-service-card="post-vacuna" class="bg-white border border-border-soft rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
           <div>
             <div class="w-12 h-12 rounded-2xl bg-pink-soft flex items-center justify-center text-2xl mb-4">
               🧸
@@ -346,19 +346,19 @@
             <div class="inline-block bg-pink-soft text-text-main text-[11px] font-bold py-1 px-2.5 rounded-full mb-2">
               15 días a 18 meses
             </div>
-            <h3 class="font-heading font-bold text-xl text-text-main mb-2">Spa Post-Vacuna & Alivio</h3>
+            <h3 data-service-name class="font-heading font-bold text-xl text-text-main mb-2">Spa Post-Vacuna & Alivio</h3>
             <p class="text-xs text-text-muted leading-relaxed mb-4">
               Sesión suave de inmersión y caricias reconfortantes para calmar la irritabilidad posterior a la vacunación y distender las piernas del bebé.
             </p>
             <div class="space-y-1.5 text-xs text-text-muted mb-6">
-              <div class="flex items-center gap-1.5"><span>⏱</span> <strong>Duración:</strong> 30 minutos</div>
+              <div class="flex items-center gap-1.5"><span>⏱</span> <strong>Duración:</strong> <span data-service-duration>30 minutos</span></div>
               <div class="flex items-center gap-1.5"><span>✨</span> <strong>Beneficio:</strong> Calma y bienestar post-inyección</div>
             </div>
           </div>
           <div class="pt-4 border-t border-border-soft">
             <div class="flex items-baseline justify-between mb-4">
               <span class="text-xs text-text-muted">Inversión:</span>
-              <span class="font-heading font-bold text-xl text-text-main">₲ 150.000</span>
+              <span data-service-price class="font-heading font-bold text-xl text-text-main">₲ 150.000</span>
             </div>
             <button onclick="setBookingService('post-vacuna')" class="w-full bg-pink-soft hover:bg-accent-pink hover:text-white text-text-main text-xs font-bold py-3 px-4 rounded-2xl transition-colors duration-300">
               Reservar este servicio
@@ -581,19 +581,8 @@
           <label class="block text-xs font-bold uppercase tracking-wider text-text-muted mb-3">
             1. Seleccioná el servicio deseado:
           </label>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-            <button type="button" data-servicio="hidroterapia" class="service-tab-btn bg-accent-pink text-white border border-[#e37f98] shadow-sm py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-semibold text-center transition-all">
-              Hidroterapia
-            </button>
-            <button type="button" data-servicio="masaje" class="service-tab-btn bg-white text-text-main border border-border-soft hover:border-accent-pink py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-semibold text-center transition-all">
-              Masaje Infantil
-            </button>
-            <button type="button" data-servicio="estimulacion" class="service-tab-btn bg-white text-text-main border border-border-soft hover:border-accent-pink py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-semibold text-center transition-all">
-              Estimulación
-            </button>
-            <button type="button" data-servicio="post-vacuna" class="service-tab-btn bg-white text-text-main border border-border-soft hover:border-accent-pink py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-semibold text-center transition-all">
-              Spa Post-Vacuna
-            </button>
+          <div id="service-buttons-container" class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3" aria-live="polite">
+            <p class="col-span-full text-sm text-text-muted">Cargando servicios…</p>
           </div>
         </div>
 

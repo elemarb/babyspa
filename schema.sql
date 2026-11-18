@@ -20,6 +20,61 @@ CREATE TABLE IF NOT EXISTS reservas (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 1b. Catálogo de servicios administrable desde el panel
+CREATE TABLE IF NOT EXISTS public.servicios (
+    codigo VARCHAR(50) PRIMARY KEY,
+    nombre VARCHAR(120) NOT NULL,
+    duracion_minutos INTEGER NOT NULL CHECK (duracion_minutos BETWEEN 1 AND 1440),
+    precio BIGINT NOT NULL CHECK (precio >= 0),
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_servicios_nombre_ci
+ON public.servicios (LOWER(nombre));
+
+INSERT INTO public.servicios (codigo, nombre, duracion_minutos, precio, activo)
+VALUES
+    ('hidroterapia', 'Hidroterapia Infantil', 30, 160000, TRUE),
+    ('masaje', 'Masaje Infantil & Relajación', 35, 145000, TRUE),
+    ('estimulacion', 'Estimulación Temprana', 40, 180000, TRUE),
+    ('post-vacuna', 'Spa Post-Vacuna & Alivio', 30, 150000, TRUE)
+ON CONFLICT (codigo) DO NOTHING;
+
+-- Conserva los códigos de servicios que ya aparecen en reservas antiguas.
+INSERT INTO public.servicios (codigo, nombre, duracion_minutos, precio, activo)
+SELECT DISTINCT ON (r.servicio)
+    r.servicio,
+    COALESCE(NULLIF(r.servicio_nombre, ''), r.servicio),
+    30,
+    0,
+    FALSE
+FROM public.reservas r
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.servicios s WHERE s.codigo = r.servicio
+)
+ORDER BY r.servicio, r.created_at;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_constraint
+        WHERE conname = 'fk_reservas_servicio'
+          AND conrelid = 'public.reservas'::regclass
+    ) THEN
+        ALTER TABLE public.reservas
+        ADD CONSTRAINT fk_reservas_servicio
+        FOREIGN KEY (servicio) REFERENCES public.servicios (codigo)
+        ON DELETE RESTRICT;
+    END IF;
+END
+$$;
+
+CREATE INDEX IF NOT EXISTS idx_reservas_servicio ON public.reservas (servicio);
+ALTER TABLE public.servicios ENABLE ROW LEVEL SECURITY;
+
 -- 2. Índice único parcial: Previene Overbooking (sobre-reserva) a nivel de base de datos
 -- Garantiza que NUNCA puedan existir dos reservas activas para la misma fecha y hora.
 CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_active_booking 
